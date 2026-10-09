@@ -1,1 +1,1 @@
-An article containing a summary of the development of sustained fusion reactors.
+An article investigating the question: 'why haven't we figured out sustained fusion yet?'
