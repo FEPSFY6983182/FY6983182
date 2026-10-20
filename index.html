@@ -86,6 +86,24 @@
           <td><a href="#References">References</td>
         </tr>
       </table>
+    <!DOCTYPE hmtl>
+<html>
+<head>
+<title>Change Button Colour</title>
+</head>
+<body>
+<button id"colorButton">Click me to change colour</button>
+
+<script>
+var button= document.getElementByld("colourButton");
+function changeColor(){
+var randomColor = "#" + Math.floor(Math.random()*16777215).toString(16);
+button.style.backgroundColor=randomColor;
+}
+button.addEventListener("click",changeColor);
+</script>
+</body>
+</html>
   
 <!-- //////////////////////////////////////////////////////////////////////////////// -->
   <!-- ////////////////////////////// Adding last update ////////////////////////////// -->
