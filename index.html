@@ -73,7 +73,7 @@
     </pre>
   </p>
     <h3 id="Introduction">Introduction</h3>
-     <p class="ex1">
+     <p class="ex1" id="pg1">
        <pre>
          Nuclear fusion has begun to establish itself as a safe, economical, and unlimited energy 
          source [1] in the modern world. The purpose of this article is to focus on Tokamak fusion 
@@ -280,7 +280,7 @@ Verify Last Modified Time
   // Function to calculate and display total word count from selected sections
   function displayTotalWordCount() {
     // Calculate word count for each section and accumulate the total
-    const IntroductionCount = displayWordCount("Introduction_InText");
+    const IntroductionCount = displayWordCount("pg1");
     const AnalysisCount = displayWordCount("Analysis_InText");
     // Calculate the sum of all selected sections
     const totalWordCount = IntroductionCount + AnalysisCount;
