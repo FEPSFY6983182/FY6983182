@@ -73,7 +73,7 @@
     </pre>
   </p>
     <h3 id="Introduction">Introduction</h3>
-     <p class="ex1" id="Intro">
+     <p class="ex1" id="Introduction_InText">
        <pre>
          Nuclear fusion has begun to establish itself as a safe, economical, and unlimited energy 
          source [1] in the modern world. The purpose of this article is to focus on Tokamak fusion 
@@ -257,8 +257,6 @@ Verify Last Modified Time
     // Initial load to display the time on page load
     window.onload = getLastUpdatedTime;
 </script>
-
-
  <!-- //////////////////////////////////////////////////////////////////////////////// -->
   <!-- ////////////////////////////// Word count function ////////////////////////////// -->
   <!-- //////////////////////////////////////////////////////////////////////////////// -->
@@ -280,7 +278,7 @@ Verify Last Modified Time
   // Function to calculate and display total word count from selected sections
   function displayTotalWordCount() {
     // Calculate word count for each section and accumulate the total
-    const IntroductionCount = displayWordCount("Intro");
+    const IntroductionCount = displayWordCount("Introduction_InText");
     const AnalysisCount = displayWordCount("Analysis_InText");
     // Calculate the sum of all selected sections
     const totalWordCount = IntroductionCount + AnalysisCount;
@@ -290,6 +288,7 @@ Verify Last Modified Time
   // Run the function for specific sections and display total count when the page loads
   window.onload = displayTotalWordCount;
 </script>
-  </body>
-</html>
+
+
+ 
   
