@@ -133,6 +133,7 @@ In a fusion reactor, the cryostat is an ultra-high vacuum pressure vessel that s
 The stages of the process:
     </p>
     <table>
+      <table id="CryostatTable"
       <tr>
       <td>Pump-down and Vacuum Generation </td>
  <td>Industrial roughing pumps evacuate the vast internal volume of the cryostat (energy encyclopedia, 2026) </td>
@@ -201,6 +202,7 @@ The stages of the process:
     
   </style>
         <table>
+          <table id="NeutralBeamTable">
           <tr>
             <td>1.</td>
             <td> Ion extraction – positive ions are extracted from an RF plasma source, which uses high-frequency electromagnetic waves to ionize gases into plasma [11].</td>
@@ -411,8 +413,10 @@ Verify Last Modified Time
     const AbstractCount = displayWordCount("Abstract_InText");
     const MagCount = displayWordCount("Magnetic_InText");
     const ConcCount = displayWordCount("Conclusion_InText");
+    const TableCount1 = displayWordCount("MagneticTable");
+    const TableCount2 = displayWordCount("CryostatTable");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount;
+    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount + TableCount2 + TableCount1;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
