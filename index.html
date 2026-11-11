@@ -152,7 +152,7 @@ The stages of the process:
       allowing the input energy to be used as efficiently as possible (eduvids, September 18, 2026).</td>
  </tr>
     </table>
-    <p class="ex1" id="Analysis_InText">
+    <p class="ex1" id="Magnetic_confinement">
     <br>
         <u><b>Magnetic Confinement</b></u>
       <br>
@@ -229,6 +229,14 @@ The stages of the process:
            <td>beams inject tangentially into the tokamak plasma for fusion drive and current drive [11].</td>
          </tr>
         </table>
+    <p class="ex1" id="Conclusion">
+    Conclusion:
+      Tokamak fusion consists of a vast number of advanced components working together in tangent to create the optimal environment to carry out nuclear fusion most efficiently. 
+      The tokamak reactor so far has proven to be one of the most successful attempts at energy gain in fusion research.
+      Whilst the components covered in this article are the culmination of a vast amount of years’ research into the maximised efficiency of nuclear fusion,
+      there are still huge amounts of research into refining and developing new solutions to carry out fusion, 
+      and there may even be discoveries of more efficient types of reactor that may overshadow tokamak fusion in the future.
+    </p>
       <head>
     <h3 id="References">References</h3>
       </head>
@@ -404,8 +412,10 @@ Verify Last Modified Time
     const IntroductionCount = displayWordCount("Introduction_InText");
     const AnalysisCount = displayWordCount("Analysis_InText");
     const AbstractCount = displayWordCount("Abstract_InText");
+    const MagCount = displayWordCount("Magnetic_Confinement");
+    const ConcCount = displayWordCount("Conclusion");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount;
+    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
