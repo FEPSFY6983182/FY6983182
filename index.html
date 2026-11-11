@@ -167,7 +167,8 @@ The stages of the process:
         Tokamaks also use ‘Shaping Coils’. The function of these is to create complex 3D magnetic fields 
         to hold the plasma away from the reactor walls [15], reducing heat loss and turbulence [16].
       <br>
-      <body><section class="plasma-demo" aria-labelledby="plasma-demo-title">
+      <body>
+        <section class="plasma-demo" aria-labelledby="plasma-demo-title">
   <div class="plasma-demo__header">
     <div>
       <p class="plasma-demo__eyebrow">INTERACTIVE TOKAMAK MODEL</p>
@@ -235,7 +236,7 @@ The stages of the process:
         <ellipse cx="250" cy="170" rx="181" ry="147"
                  fill="none" stroke="#b09bff" stroke-width="2" stroke-opacity=".8" />
 
-        <!-- Plasma glow and boundary are updated by the sliders -->
+        <!-- Plasma paths are updated by the controls -->
         <path id="plasmaGlowPath" fill="#ff7747" opacity=".38"
               filter="url(#plasmaBlur)" />
         <path id="plasmaShape"
@@ -275,7 +276,9 @@ The stages of the process:
         </label>
         <input id="triangularity" type="range" min="0.00" max="0.50"
                step="0.01" value="0.30" />
-        <div class="plasma-demo__scale"><span>More rounded</span><span>More D-shaped</span></div>
+        <div class="plasma-demo__scale">
+          <span>More rounded</span><span>More D-shaped</span>
+        </div>
       </div>
 
       <div class="plasma-demo__control">
@@ -300,22 +303,23 @@ The stages of the process:
 
       <div class="plasma-demo__score" aria-live="polite">
         <div class="plasma-demo__score-heading">
-          <span>Illustrative efficiency index</span>
+          <span>Relative confinement vs. reference</span>
           <strong><span id="efficiencyValue">—</span><small>%</small></strong>
         </div>
         <div class="plasma-demo__meter-track"
              role="progressbar"
-             aria-label="Illustrative efficiency index"
+             aria-label="Relative confinement compared with reference settings"
              aria-valuemin="0"
-             aria-valuemax="100"
+             aria-valuemax="120"
              aria-valuenow="0"
              id="efficiencyMeter">
           <div class="plasma-demo__meter-fill" id="efficiencyBar"></div>
         </div>
         <p id="efficiencyNote" class="plasma-demo__score-note"></p>
         <p class="plasma-demo__disclaimer">
-          A simplified, illustrative score for this interactive diagram.
-          It does not calculate or predict real reactor efficiency.
+          A simplified comparison from the ITER98(y,2) confinement scaling,
+          holding other plasma parameters constant. This is not reactor
+          efficiency or a prediction of actual reactor performance.
         </p>
       </div>
     </div>
@@ -522,127 +526,8 @@ The stages of the process:
   .plasma-demo__meter-fill {
     width: 0;
     height: 100%;
-    background: linear-gradient(90deg, #55c5e1, #8ce2b0);
-    border-radius: inherit;
-    transition: width 180ms ease-out;
-  }
-
-  .plasma-demo__score-note,
-  .plasma-demo__disclaimer {
-    margin: 0;
-    color: var(--pd-muted);
-    font-size: .82rem;
-    line-height: 1.5;
-  }
-
-  .plasma-demo__disclaimer {
-    margin-top: 9px;
-    color: #8fa5b7;
-    font-size: .75rem;
-  }
-
-  @media (max-width: 760px) {
-    .plasma-demo__layout {
-      grid-template-columns: 1fr;
-    }
-
-    .plasma-demo__header {
-      flex-direction: column;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .plasma-demo__meter-fill {
-      transition: none;
-    }
-  }
-</style>
-
-<script>
-  (() => {
-    const defaults = {
-      elongation: 1.70,
-      triangularity: 0.30,
-      plasmaSize: 86,
-      fieldStrength: 5.3
-    };
-
-    const ids = ["elongation", "triangularity", "plasmaSize", "fieldStrength"];
-    const controls = Object.fromEntries(
-      ids.map(id => [id, document.getElementById(id)])
-    );
-
-    function makePlasmaPath(elongation, triangularity, sizePercent) {
-      const centerX = 250;
-      const centerY = 170;
-      const size = sizePercent / 100;
-      const radiusX = 116 * size;
-      const radiusY = 59 * elongation * size;
-      const points = [];
-      const steps = 180;
-
-      for (let i = 0; i <= steps; i++) {
-        const angle = (i / steps) * Math.PI * 2;
-        const shapedAngle = angle + triangularity * Math.sin(angle);
-        const x = centerX + radiusX * Math.cos(shapedAngle);
-        const y = centerY - radiusY * Math.sin(angle);
-        points.push(`${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`);
-      }
-
-      return points.join(" ") + " Z";
-    }
-
-    function updateDiagram() {
-      const elongation = Number(controls.elongation.value);
-      const triangularity = Number(controls.triangularity.value);
-      const plasmaSize = Number(controls.plasmaSize.value);
-      const fieldStrength = Number(controls.fieldStrength.value);
-
-      document.getElementById("elongationValue").textContent = elongation.toFixed(2);
-      document.getElementById("triangularityValue").textContent = triangularity.toFixed(2);
-      document.getElementById("plasmaSizeValue").textContent = `${plasmaSize}%`;
-      document.getElementById("fieldStrengthValue").textContent = `${fieldStrength.toFixed(1)} T`;
-
-      const path = makePlasmaPath(elongation, triangularity, plasmaSize);
-      document.getElementById("plasmaShape").setAttribute("d", path);
-      document.getElementById("plasmaGlowPath").setAttribute("d", path);
-
-      // Teaching model: a smooth relative score around example target settings.
-      // This is not a physics-based reactor-efficiency calculation.
-      const deviation =
-        Math.pow((elongation - 1.75) / 0.42, 2) +
-        Math.pow((triangularity - 0.32) / 0.25, 2) +
-        Math.pow((plasmaSize - 86) / 12, 2) +
-        Math.pow((fieldStrength - 5.3) / 1.8, 2);
-
-      const score = Math.round(100 * Math.exp(-0.16 * deviation));
-      document.getElementById("efficiencyValue").textContent = score;
-      document.getElementById("efficiencyBar").style.width = `${score}%`;
-
-      const meter = document.getElementById("efficiencyMeter");
-      meter.setAttribute("aria-valuenow", score);
-
-      let note = "The index is lower than the model's example settings.";
-      if (score >= 90) {
-        note = "These settings are close to the model's example target.";
-      } else if (score >= 70) {
-        note = "These settings are reasonably close to the model's example target.";
-      }
-      document.getElementById("efficiencyNote").textContent = note;
-    }
-
-    ids.forEach(id => controls[id].addEventListener("input", updateDiagram));
-
-    document.getElementById("plasmaReset").addEventListener("click", () => {
-      ids.forEach(id => {
-        controls[id].value = defaults[id];
-      });
-      updateDiagram();
-    });
-
-    updateDiagram();
-  })();
-</script>
+    background: linear-gradient(90deg*
+
       </body>
       <br>
         <u><b>Neutral beam Injection </b></u>
