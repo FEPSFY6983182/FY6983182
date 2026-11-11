@@ -6,6 +6,36 @@
   <img src="WebBanner2026.png" alt="Banner" width="1200" height"300">
   </head>
   <body>
+    <style>
+      .banner {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Fade the banner into the page's dark blue background */
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    rgba(11, 43, 71, 0.55) 78%,
+    #0b2b47 100%
+  );
+  pointer-events: none;
+}
+      </style>
     
 
 <h1><b>ENG0018 Computer Laboratory 2026/27</b></h1>
@@ -99,7 +129,7 @@ h3[id] {
     <h3 id="Introduction">Introduction</h3>
      <p class="ex1" id="Introduction_InText">
        
-         Nuclear fusion has begun to establish itself as a safe, economical, and unlimited energy 
+         Nuclear fusion has begun to establish itself as a safe, economical, and essentially unlimited energy 
          source (Reimerdes, et. al, 2022) in the modern world. The purpose of this article is to focus on Tokamak fusion 
          reactors, several of the technologies that make the tokamak fusion process possible in 
          the first place, as well as some of the problems faced in current research on tokamak 
