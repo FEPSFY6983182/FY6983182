@@ -8,22 +8,25 @@
 </div>
   </head>
   <body>
-    <style>
+    <style
 .banner {
   position: relative;
-  width: calc(100% + 50px);
+  width: 100vw;
   height: 300px;
   margin: 0 0 24px -50px;
   overflow: hidden;
-  background: #fff; /* White fills the area behind and beside the image */
+  background: linear-gradient(
+    to bottom,
+    #fff 0%,
+    #fff 55%,
+    #0b2b47 100%
+  );
 }
 
 .banner img {
   display: block;
   width: 100%;
-  max-width: 1200px;
   height: 300px;
-  margin: 0 auto;
   object-fit: cover;
 }
 
@@ -33,14 +36,13 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    transparent 55%,
+    transparent 50%,
     rgba(11, 43, 71, 0.55) 78%,
     #0b2b47 100%
   );
   pointer-events: none;
 }
-</style>
-    
+    </style>
 <h1><b>ENG0018 Computer Laboratory 2026/27</b></h1>
 <h2> URN:6983182</h2>
 <hr>
