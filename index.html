@@ -9,37 +9,44 @@
   </head>
   <body>
     <style>
-      .banner {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto 24px;
-  overflow: hidden;
-  line-height: 0;
-}
+  body {
+    background-color: #0b2b47;
+    margin: 0 0 0 50px;
+    color: white;
+  }
 
-.banner img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+  .banner {
+    position: relative;
+    width: calc(100% + 50px);
+    height: 300px;
+    margin: 0 0 24px -50px;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #fff 0%, #0b2b47 100%);
+  }
 
-/* Fade the banner into the page's dark blue background */
-.banner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 55%,
-    rgba(11, 43, 71, 0.55) 78%,
-    #0b2b47 100%
-  );
-  pointer-events: none;
-}
-      </style>
-    
+  .banner img {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    height: 300px;
+    margin: 0 auto;
+    object-fit: cover;
+  }
 
+  /* Fade the image and the full-width banner area into the page background */
+  .banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 55%,
+      rgba(11, 43, 71, 0.55) 78%,
+      #0b2b47 100%
+    );
+    pointer-events: none;
+  }
+</style>
 <h1><b>ENG0018 Computer Laboratory 2026/27</b></h1>
 <h2> URN:6983182</h2>
 <hr>
