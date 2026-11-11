@@ -39,14 +39,34 @@
 }
       </style>
     <style>
-    body {
+ body {
   background-color: #0b2b47;
-  background-image: linear-gradient(to bottom, #ffffff 0%, #0b2b47 320px);
+  /* The side areas follow the same fade as the banner. */
+  background-image: linear-gradient(
+    to bottom,
+    #ffffff 55%,
+    #798a99 78%,
+    #0b2b47 100%
+  );
+  background-size: 100% var(--banner-height);
   background-repeat: no-repeat;
   margin-left: 50px;
   color: white;
 }
-    </style
+
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    rgba(11, 43, 71, 0.55) 78%,
+    #0b2b47 100%
+  );
+  pointer-events: none;
+}
+      </style>
 
 <h1><b>ENG0018 Computer Laboratory 2026/27</b></h1>
 <h2> URN:6983182</h2>
