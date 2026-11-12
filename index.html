@@ -194,8 +194,6 @@ The stages of the process:
         How it works:
     </p>
 <!--INTERACTIVE DIAGRAM-->
-<!DOCTYPE html>
-<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Interactive Tokamak Neutral Beam Injection</title>
@@ -267,7 +265,7 @@ return `<svg id="zoom-svg" viewBox="0 0 800 430" role="img" aria-label="Detailed
 function openZoom(){document.getElementById("zoom-title").textContent=`Zoom: ${stages[currentStage-1].title}`;document.getElementById("zoom-description").textContent=stages[currentStage-1].caption+" Moving particles continue in the close-up. The particle paths and plasma glow are illustrative.";zoomCanvas.innerHTML=zoomSvg(currentStage);const z=document.getElementById("zoom-svg");zoomPaths={ion:z.querySelector("#zoom-ion-path"),neutral:z.querySelector("#zoom-neutral-path"),residual:z.querySelector("#zoom-residual-path"),plasma:z.querySelector("#zoom-plasma-path")};drawParticleSet(document.getElementById("zoom-particles"),zoomPaths,performance.now(),true);zoomDialog.showModal()}
 document.getElementById("zoom-button").addEventListener("click",openZoom);document.getElementById("close-zoom").addEventListener("click",()=>zoomDialog.close());zoomDialog.addEventListener("click",e=>{if(e.target===zoomDialog)zoomDialog.close()});
 setStage(1);showTemperature(ROOM_K,"Room temperature (293 K) — ready to heat up.");requestAnimationFrame(animate);
-</script></body></html>
+</script></body>
       <br>
     <br>
     <p class="ex1" id="Conclusion_InText">
