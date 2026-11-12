@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Tokamak Neutral Beam Injection</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0b2b47;
+      --panel: #123b5b;
+      --ink: #f5f8fc;
+      --muted: #c3d6e5;
+      --line: #9eb4c3;
+      --ion: #ff9a55;
+      --neutral: #71e6ff;
+      --plasma: #ff4d65;
+      --focus: #ffe66d;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      background: var(--page);
+      color: var(--ink);
+      font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { width: min(1050px, 100%); margin: 0 auto; }
+    h1 { margin: 0 0 .4rem; font-size: clamp(1.5rem, 3vw, 2.2rem); }
+    .intro, .note { color: var(--muted); }
+    .demo {
+      margin-top: 1.25rem;
+      padding: clamp(1rem, 3vw, 1.5rem);
+      background: var(--panel);
+      border: 1px solid #41627a;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px #00172955;
+    }
+    .diagram-wrap { overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 720px; height: auto; }
+    svg text { fill: var(--ink); font: 13px system-ui, sans-serif; }
+    svg .small-label { font-size: 11px; fill: var(--muted); }
+    .machine { fill: #102a3b; stroke: var(--line); stroke-width: 2; }
+    .part { fill: #314d60; stroke: #b7c8d3; stroke-width: 1.5; }
+    .pipe { fill: #172f40; stroke: #a9bdca; stroke-width: 2; }
+    .beam-ion { fill: none; stroke: var(--ion); stroke-width: 3; stroke-dasharray: 8 7; }
+    .beam-neutral { fill: none; stroke: var(--neutral); stroke-width: 4; stroke-dasharray: 3 8; }
+    .dump-path { fill: none; stroke: var(--ion); stroke-width: 3; stroke-dasharray: 7 6; }
+    .magnet { fill: none; stroke: #a7b5c3; stroke-width: 16; stroke-linecap: round; }
+    .magnet-core { fill: none; stroke: #49667a; stroke-width: 8; stroke-linecap: round; }
+    .plasma-shell { fill: #ffbf3c; opacity: .48; }
+    .plasma-mid { fill: #ff793d; opacity: .72; }
+    .plasma-core { fill: #e93251; opacity: .95; }
+    .step-highlight { opacity: .16; transition: opacity .2s ease, filter .2s ease; }
+    .step-highlight.active { opacity: 1; filter: drop-shadow(0 0 6px var(--focus)); }
+    .particle { pointer-events: none; }
+    .ion-dot { fill: var(--ion); stroke: #40200d; stroke-width: 1; }
+    .neutral-dot { fill: var(--neutral); stroke: #06313b; stroke-width: 1; }
+    .beam-ion-dot { fill: #c7f7ff; stroke: #17404b; stroke-width: 1; }
+    .controls { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .75rem; margin-top: 1rem; }
+    button {
+      min-height: 42px; padding: .5rem .85rem; border: 1px solid #9bb9cd;
+      border-radius: 8px; background: #0b2b47; color: var(--ink); font: inherit; cursor: pointer;
+    }
+    button:hover { background: #1b4a6d; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    input[type="range"] { width: 100%; accent-color: var(--neutral); }
+    .range-labels { display: flex; justify-content: space-between; gap: .5rem; color: var(--muted); font-size: .8rem; }
+    .stage-count { margin: .75rem 0 0; color: var(--neutral); font-weight: 700; }
+    h2 { margin: .25rem 0 .35rem; font-size: 1.25rem; }
+    #stage-caption { min-height: 3.2em; margin: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; color: var(--muted); font-size: .9rem; }
+    .key { display: inline-flex; align-items: center; gap: .45rem; }
+    .swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+    .swatch.ion { background: var(--ion); }
+    .swatch.neutral { background: var(--neutral); }
+    .swatch.plasma { background: var(--plasma); }
+    .note { margin-bottom: 0; font-size: .88rem; }
+    @media (max-width: 560px) {
+      body { padding: 1rem .5rem; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .controls input { grid-column: 1 / -1; grid-row: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>How neutral beam injection heats a tokamak</h1>
+  <p class="intro">Use the slider or buttons to follow the six stages. The moving dots are a schematic of the particle paths, not a scale model.</p>
+
+  <section class="demo" aria-label="Interactive neutral beam injection demonstration">
+    <div class="diagram-wrap">
+      <svg id="nbi-diagram" viewBox="0 0 1000 420" role="img" aria-labelledby="diagram-title diagram-description">
+        <title id="diagram-title">Positive-ion neutral beam injection system</title>
+        <desc id="diagram-description">A positive ion source and accelerator feed a gas neutralizer. A bending magnet sends residual ions to a cooled ion dump, while neutral atoms continue through a beam duct and enter tokamak plasma tangentially.</desc>
+        <defs>
+          <marker id="arrow-neutral" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#71e6ff"/></marker>
+          <marker id="arrow-ion" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#ff9a55"/></marker>
+        </defs>
+
+        <!-- Source and beamline: left to right, entering the tokamak tangentially. -->
+        <g class="step-highlight" data-step="1">
+          <rect class="machine" x="22" y="150" width="115" height="100" rx="12"/>
+          <ellipse cx="77" cy="200" rx="32" ry="22" fill="#ff684a" opacity=".8"/>
+          <ellipse cx="77" cy="200" rx="18" ry="12" fill="#ffe36b"/>
+          <text x="43" y="140">RF plasma source</text>
+          <text class="small-label" x="49" y="207">source plasma</text>
+          <path class="beam-ion" d="M137 200 L255 200" marker-end="url(#arrow-ion)"/>
+          <text x="145" y="184">positive ions</text>
+        </g>
+
+        <g class="step-highlight" data-step="2">
+          <rect class="part" x="157" y="165" width="13" height="70"/>
+          <rect class="part" x="181" y="165" width="13" height="70"/>
+          <rect class="part" x="205" y="165" width="13" height="70"/>
+          <text x="145" y="270">Extraction / accelerator grids</text>
+          <text class="small-label" x="163" y="288">electrostatic acceleration</text>
+          <path class="beam-ion" d="M218 200 L390 200" marker-end="url(#arrow-ion)"/>
+        </g>
+
+        <g class="step-highlight" data-step="3">
+          <rect class="pipe" x="255" y="168" width="150" height="64" rx="20"/>
+          <text x="284" y="157">Gas neutralizer</text>
+          <text class="small-label" x="285" y="223">charge exchange with gas</text>
+          <path class="beam-neutral" d="M270 200 L405 200" marker-end="url(#arrow-neutral)"/>
+        </g>
+
+        <g class="step-highlight" data-step="4">
+          <path class="magnet" d="M452 178 C505 178 505 222 452 222"/>
+          <path class="magnet-core" d="M452 178 C505 178 505 222 452 222"/>
+          <text x="431" y="150">Bending magnet</text>
+          <path class="dump-path" d="M470 200 C515 205 518 269 558 292" marker-end="url(#arrow-ion)"/>
+          <rect class="part" x="535" y="286" width="52" height="35" rx="5"/>
+          <path d="M543 294h36 M543 301h36 M543 308h36" stroke="#71e6ff" stroke-width="2"/>
+          <text x="515" y="340">Cooled ion dump</text>
+          <path class="beam-neutral" d="M405 200 L690 200" marker-end="url(#arrow-neutral)"/>
+          <text class="small-label" x="490" y="187">neutral atoms pass straight</text>
+        </g>
+
+        <g class="step-highlight" data-step="5">
+          <path class="pipe" d="M590 174 H745 V226 H590 Z"/>
+          <text x="617" y="160">Beam duct</text>
+          <path class="beam-neutral" d="M590 200 L813 200" marker-end="url(#arrow-neutral)"/>
+        </g>
+
+        <g class="step-highlight" data-step="6">
+          <path class="machine" d="M775 75 H973 V345 H775 Z"/>
+          <path d="M812 105 H940 V315 H812 L790 285 V135 Z" fill="#0a2234" stroke="#9eb4c3" stroke-width="2"/>
+          <ellipse class="plasma-shell" cx="885" cy="210" rx="38" ry="88"/>
+          <ellipse class="plasma-mid" cx="885" cy="210" rx="27" ry="67"/>
+          <ellipse class="plasma-core" cx="885" cy="210" rx="15" ry="43"/>
+          <text x="854" y="210" transform="rotate(-90 854 210)">TOKAMAK PLASMA</text>
+          <path d="M700 200 L850 200" fill="none" stroke="#71e6ff" stroke-width="5" marker-end="url(#arrow-neutral)"/>
+          <text class="small-label" x="697" y="185">tangential neutral beam</text>
+          <path d="M850 200 C868 185 900 184 916 203 C930 222 908 240 885 229 C866 220 870 198 890 194" fill="none" stroke="#c7f7ff" stroke-width="2" stroke-dasharray="4 4"/>
+          <text class="small-label" x="812" y="333">re-ionized beam ions are confined</text>
+        </g>
+
+        <g id="particles" aria-hidden="true"></g>
+      </svg>
+    </div>
+
+    <div class="legend" aria-label="Particle colour key">
+      <span class="key"><i class="swatch ion"></i>Positive ions / residual ions</span>
+      <span class="key"><i class="swatch neutral"></i>Fast neutral atoms</span>
+      <span class="key"><i class="swatch plasma"></i>Tokamak plasma</span>
+    </div>
+
+    <div class="controls">
+      <button id="previous" type="button" aria-label="Go to previous stage">← Previous</button>
+      <input id="stage-slider" type="range" min="1" max="6" value="1" step="1" aria-label="Neutral beam injection stage" aria-valuetext="Stage 1 of 6: Ion extraction">
+      <button id="next" type="button" aria-label="Go to next stage">Next →</button>
+    </div>
+    <div class="range-labels" aria-hidden="true"><span>Source</span><span>Plasma</span></div>
+    <p class="stage-count" id="stage-count" aria-live="polite">Stage 1 of 6</p>
+    <h2 id="stage-title">Ion extraction</h2>
+    <p id="stage-caption">Positive ions are extracted from the RF plasma source. Radio-frequency energy ionizes the source gas; extraction electrodes draw the ions out to form a beam.</p>
+    <p class="note">Schematic only: the actual beamline layout, neutralization fraction, energies, and injection angle vary by device. Neutral atoms are unaffected by the bending magnet; residual charged particles are not.</p>
+  </section>
+</main>
+
+<script>
+  const stages = [
+    {
+      title: "Ion extraction",
+      caption: "Positive ions are extracted from the RF plasma source. Radio-frequency energy ionizes the source gas; extraction electrodes draw the ions out to form a beam.",
+      focus: 1
+    },
+    {
+      title: "Ion acceleration",
+      caption: "The positive ions are accelerated through a multi-aperture grid system. The electrostatic field gives them high kinetic energy and forms a directed beam.",
+      focus: 2
+    },
+    {
+      title: "Gas neutralization",
+      caption: "The fast ions pass through gas in the neutralizer. Charge-exchange collisions convert some ions into fast neutral atoms; the process is not perfectly efficient, so some ions remain charged.",
+      focus: 3
+    },
+    {
+      title: "Separate residual ions",
+      caption: "The bending magnet deflects the remaining charged ions into a cooled ion dump. Neutral atoms are not deflected by the magnetic field and continue along the beamline.",
+      focus: 4
+    },
+    {
+      title: "Travel through the beam duct",
+      caption: "The fast neutral beam travels through the beam duct toward the tokamak. The duct provides a clear path from the injector to the vessel.",
+      focus: 5
+    },
+    {
+      title: "Inject into the tokamak plasma",
+      caption: "The neutral beam enters the plasma tangentially. Collisions ionize the atoms inside the plasma; the resulting fast ions are magnetically confined and transfer energy and momentum to the plasma. The direction of injection can also drive plasma current.",
+      focus: 6
+    }
+  ];
+
+  const slider = document.getElementById("stage-slider");
+  const title = document.getElementById("stage-title");
+  const caption = document.getElementById("stage-caption");
+  const count = document.getElementById("stage-count");
+  const particles = document.getElementById("particles");
+  const svg = document.getElementById("nbi-diagram");
+  const particlePaths = {
+    ions: svg.querySelector('[data-step="2"] .beam-ion'),
+    neutral: svg.querySelector('[data-step="5"] .beam-neutral'),
+    residual: svg.querySelector('[data-step="4"] .dump-path'),
+    plasmaIon: svg.querySelector('[data-step="6"] path[stroke-dasharray]')
+  };
+  let currentStage = 1;
+  let lastFrame = 0;
+
+  function setStage(value) {
+    currentStage = Math.max(1, Math.min(6, Number(value)));
+    const stage = stages[currentStage - 1];
+    slider.value = currentStage;
+    slider.setAttribute("aria-valuetext", `Stage ${currentStage} of 6: ${stage.title}`);
+    title.textContent = stage.title;
+    caption.textContent = stage.caption;
+    count.textContent = `Stage ${currentStage} of 6`;
+    document.querySelectorAll(".step-highlight").forEach((group) => {
+      group.classList.toggle("active", Number(group.dataset.step) === stage.focus);
+    });
+    drawParticles(performance.now());
+  }
+
+  function addParticle(path, progress, className, radius = 4) {
+    if (!path || !path.getTotalLength) return;
+    const length = path.getTotalLength();
+    const point = path.getPointAtLength(Math.max(0, Math.min(1, progress)) * length);
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", point.x);
+    dot.setAttribute("cy", point.y);
+    dot.setAttribute("r", radius);
+    dot.setAttribute("class", `particle ${className}`);
+    particles.appendChild(dot);
+  }
+
+  function drawParticles(time) {
+    particles.replaceChildren();
+    const phase = (time / 2300) % 1;
+    // Ion beam is shown through acceleration; neutral beam appears after charge exchange.
+    if (currentStage <= 3) {
+      for (let i = 0; i < 7; i++) addParticle(particlePaths.ions, (phase + i / 7) % 1, "ion-dot", 3.7);
+    }
+    if (currentStage >= 3) {
+      for (let i = 0; i < 7; i++) addParticle(particlePaths.neutral, (phase + i / 7) % 1, "neutral-dot", 4);
+    }
+    if (currentStage >= 4) {
+      for (let i = 0; i < 3; i++) addParticle(particlePaths.residual, (phase + i / 3) % 1, "ion-dot", 3.7);
+    }
+    if (currentStage === 6 && particlePaths.plasmaIon) {
+      const p = particlePaths.plasmaIon;
+      const point = p.getPointAtLength(phase * p.getTotalLength());
+      addParticle(p, phase, "beam-ion-dot", 4);
+      // Make the marker visible on the helical in-plasma path, which is deliberately schematic.
+      const last = particles.lastElementChild;
+      if (last) { last.setAttribute("cx", point.x); last.setAttribute("cy", point.y); }
+    }
+  }
+
+  function animate(time) {
+    if (time - lastFrame > 70) {
+      drawParticles(time);
+      lastFrame = time;
+    }
+    requestAnimationFrame(animate);
+  }
+
+  slider.addEventListener("input", (event) => setStage(event.target.value));
+  document.getElementById("previous").addEventListener("click", () => setStage(currentStage - 1));
+  document.getElementById("next").addEventListener("click", () => setStage(currentStage + 1));
+  setStage(1);
+  requestAnimationFrame(animate);
+</script>
+</body>
+</html>
