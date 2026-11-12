@@ -9,7 +9,7 @@
     *{box-sizing:border-box}body{margin:0;padding:2rem 1rem;background:var(--page);color:var(--ink);font:1rem/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1120px,100%);margin:auto}h1{margin:0 0 .4rem;font-size:clamp(1.5rem,3vw,2.2rem)}.intro,.note{color:var(--muted)}
     .demo{margin-top:1.25rem;padding:clamp(1rem,3vw,1.5rem);background:var(--panel);border:1px solid #41627a;border-radius:14px;box-shadow:0 10px 30px #00172955}.diagram-wrap{overflow-x:auto}svg{display:block;width:100%;min-width:800px;height:auto}svg text{fill:var(--ink);font:13px system-ui,sans-serif}.small-label{font-size:11px;fill:var(--muted)}
     .machine{fill:#102a3b;stroke:var(--line);stroke-width:2}.part{fill:#314d60;stroke:#b7c8d3;stroke-width:1.5}.pipe{fill:#172f40;stroke:#a9bdca;stroke-width:2}.beam-ion{fill:none;stroke:var(--ion);stroke-width:3;stroke-dasharray:8 7}.beam-neutral{fill:none;stroke:var(--neutral);stroke-width:4;stroke-dasharray:3 8}.dump-path{fill:none;stroke:var(--ion);stroke-width:3;stroke-dasharray:7 6}.step-highlight{opacity:.42;transition:opacity .2s ease,filter .2s ease}.step-highlight.active{opacity:1;filter:drop-shadow(0 0 6px var(--focus))}.particle{pointer-events:none}.ion-dot{fill:var(--ion);stroke:#40200d;stroke-width:1}.neutral-dot{fill:var(--neutral);stroke:#06313b;stroke-width:1}.beam-ion-dot{fill:#c7f7ff;stroke:#17404b;stroke-width:1}
-    .controls{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.75rem;margin-top:1rem}button{min-height:42px;padding:.5rem .85rem;border:1px solid #9bb9cd;border-radius:8px;background:#0b2b47;color:var(--ink);font:inherit;cursor:pointer}button:hover{background:#1b4a6d}button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px}input[type=range]{width:100%;accent-color:var(--neutral)}.range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem}.stage-count{margin:.75rem 0 0;color:var(--neutral);font-weight:700}h2{margin:.25rem 0 .35rem;font-size:1.25rem}#stage-caption{min-height:3.2em;margin:0}.legend{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;color:var(--muted);font-size:.9rem}.key{display:inline-flex;align-items:center;gap:.45rem}.swatch{width:14px;height:14px;border-radius:50%;display:inline-block}.swatch.ion{background:var(--ion)}.swatch.neutral{background:var(--neutral)}.swatch.plasma{background:#f64b57}.note{margin-bottom:0;font-size:.88rem}.zoom-row{display:flex;justify-content:flex-end;margin-top:.7rem}
+    .controls{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.75rem;margin-top:1rem}button{min-height:42px;padding:.5rem .85rem;border:1px solid #9bb9cd;border-radius:8px;background:#0b2b47;color:var(--ink);font:inherit;cursor:pointer}button:hover{background:#1b4a6d}button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px}input[type=range]{width:100%;accent-color:var(--neutral)}.range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem}.stage-count{margin:.75rem 0 0;color:var(--neutral);font-weight:700}h2{margin:.25rem 0 .35rem;font-size:1.25rem}#stage-caption{min-height:3.2em;margin:0}.legend{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;color:var(--muted);font-size:.9rem}.key{display:inline-flex;align-items:center;gap:.45rem}.swatch{width:14px;height:14px;border-radius:50%;display:inline-block}.swatch.ion{background:var(--ion)}.swatch.neutral{background:var(--neutral)}.swatch.plasma{background:#f64b57}.note{margin-bottom:0;font-size:.88rem}.source-box{margin-top:1rem;padding:.75rem 1rem;border:1px solid #6b8ea4;border-radius:10px;background:#0d2a3d;color:var(--muted);font-size:.9rem;line-height:1.5}.source-box a{color:#9fe9ff}.zoom-row{display:flex;justify-content:flex-end;margin-top:.7rem}
     dialog{width:min(920px,calc(100% - 1rem));max-height:90vh;padding:0;border:1px solid #7895aa;border-radius:14px;background:#092338;color:var(--ink);box-shadow:0 20px 70px #000b}dialog::backdrop{background:#00111dcc}.zoom-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.25rem;border-bottom:1px solid #41627a}.zoom-head h2{margin:0}.zoom-body{padding:1rem 1.25rem 1.25rem}.zoom-canvas{overflow:auto;background:#102f47;border-radius:10px;padding:.6rem}.zoom-canvas svg{min-width:620px;width:100%}.zoom-description{color:var(--muted);margin:.7rem 0 0}.zoom-motion{stroke-dasharray:7 8;animation:travel 1.15s linear infinite}.zoom-rings{transform-origin:400px 205px;animation:pulse 2.4s ease-in-out infinite}@keyframes travel{to{stroke-dashoffset:-30}}@keyframes pulse{50%{opacity:.55;transform:scale(1.025)}}
     @media(max-width:560px){body{padding:1rem .5rem}.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1;grid-row:1}.zoom-head{align-items:flex-start}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
@@ -28,7 +28,6 @@
           <marker id="arrow-ion" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#ff9a55"/></marker>
           <linearGradient id="plasmaGlow" x1="0" x2="1"><stop stop-color="#ffb43b"/><stop offset=".55" stop-color="#ff603e"/><stop offset="1" stop-color="#d9224a"/></linearGradient>
         </defs>
-        <!-- Injection line -->
         <g class="step-highlight" data-step="1">
           <rect class="machine" x="18" y="170" width="108" height="100" rx="13"/>
           <ellipse cx="72" cy="220" rx="34" ry="25" fill="#ef513f" opacity=".8"/><ellipse cx="72" cy="220" rx="19" ry="14" fill="#ffd96a"/>
@@ -44,7 +43,6 @@
           <rect class="pipe" x="262" y="184" width="151" height="72" rx="20"/><path d="M276 193v53M291 190v60M306 190v60" stroke="#668399" stroke-width="1" stroke-dasharray="2 5"/>
           <text x="292" y="173">Gas neutralizer</text><text class="small-label" x="280" y="250">charge-exchange cell</text><path class="beam-neutral" d="M270 220H425" marker-end="url(#arrow-neutral)"/>
         </g>
-        <!-- More detailed residual-ion magnet: yoke, pole gap, windings, flux lines and cooled dump -->
         <g class="step-highlight" data-step="4">
           <path d="M441 178H486Q506 178 506 198V204H473V236H506V242Q506 262 486 262H441V243H463V197H441Z" fill="#536c7d" stroke="#d5e0e7" stroke-width="2"/>
           <rect x="464" y="198" width="42" height="7" fill="#b9c9d2"/><rect x="464" y="235" width="42" height="7" fill="#b9c9d2"/>
@@ -60,18 +58,15 @@
           <path class="pipe" d="M586 193H748V247H586Z"/><path d="M598 200v40m9-40v40" stroke="#49667a" stroke-width="2"/>
           <text x="628" y="178">Beam duct</text><path class="beam-neutral" d="M581 220H805" marker-end="url(#arrow-neutral)"/>
         </g>
-        <!-- Tokamak poloidal cross-section: layered vessel, blanket and first wall, D-shaped plasma, X-point and divertor -->
         <g class="step-highlight" data-step="6">
           <path d="M800 63Q782 63 782 86V345Q782 368 800 368H1063V63Z" fill="#102a3b" stroke="#d1dce4" stroke-width="3"/>
           <path d="M820 86Q805 86 805 104V327Q805 345 820 345H1042V86Z" fill="#263e50" stroke="#9db2c0" stroke-width="2"/>
           <path d="M837 103Q823 103 823 119V312Q823 328 837 328H1022V103Z" fill="#152d40" stroke="#f0c66c" stroke-width="5"/>
           <text class="small-label" x="824" y="94">vacuum vessel</text><text class="small-label" x="958" y="116">blanket</text><text class="small-label" x="955" y="133">first wall</text>
-          <!-- D-shaped plasma boundary / hot core contour -->
           <path d="M868 148C915 137 963 151 973 190V242C963 280 915 294 868 282C852 275 847 256 847 215C847 174 852 155 868 148Z" fill="#b72b45" opacity=".42" stroke="#ffbd43" stroke-width="2"/>
           <path class="step-highlight-inner" d="M874 161C916 151 951 164 960 194V238C951 265 916 277 874 268C861 261 857 245 857 215C857 185 861 169 874 161Z" fill="url(#plasmaGlow)" opacity=".92"/>
           <path d="M884 174C915 168 938 178 944 199V232C938 252 915 262 884 255C875 249 872 237 872 215C872 193 875 180 884 174Z" fill="#ffb045" opacity=".55"/>
           <text x="887" y="218" font-size="11">D-shaped plasma</text>
-          <!-- Divertor legs and targets below the X-point; illustrative magnetic separatrix -->
           <path d="M859 254C877 276 895 284 910 268C926 284 944 276 961 254" fill="none" stroke="#fff0aa" stroke-width="2" stroke-dasharray="4 4"/>
           <path d="M910 269L893 305M910 269L928 305" stroke="#ff8d59" stroke-width="3"/>
           <path d="M879 307h27l-5 10h-27zm36 0h27l5 10h-27z" fill="#8498a5" stroke="#e1e8ed" stroke-width="1.5"/>
@@ -91,6 +86,9 @@
     <p id="stage-caption">Positive ions are extracted from the RF plasma source. Radio-frequency energy ionizes the source gas; extraction electrodes draw the ions out to form a beam.</p>
     <div class="zoom-row"><button id="zoom-button" type="button">Zoom in on this stage</button></div>
     <p class="note">Tokamak geometry and magnetic field lines are simplified. Neutral atoms are unaffected by the bending magnet; residual charged particles are deflected into a beam dump. The actual component layout and beam trajectories vary by device.</p>
+    <div class="source-box">
+      Source: Hopf, C., Bachmann, C., Fellinger, T., Franke, T., Gliss, C., Härtl, T., Heinemann, B., &amp; Orozco, G. (2025). <em>Neutral Beam Injection for a tokamak-based Volumetric Neutron Source</em>. <em>Fusion Engineering and Design</em>, 213, 114870. <a href="https://doi.org/10.1016/j.fusengdes.2025.114870" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.fusengdes.2025.114870</a>
+    </div>
   </section>
 </main>
 <dialog id="zoom-dialog" aria-labelledby="zoom-title">
