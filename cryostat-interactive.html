@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tokamak Cryostat Interactive Diagram</title>
+  <style>
+    :root {
+      --bg: #0b2b47;
+      --panel: #123b5b;
+      --panel-2: #102a3b;
+      --ink: #eef7ff;
+      --muted: #cfe0ec;
+      --line: #93b0c0;
+      --accent: #8ff0c8;
+      --cyan: #71e6ff;
+      --amber: #ffd36a;
+      --amber-soft: rgba(255, 211, 106, 0.35);
+      --magenta: #c7a3ff;
+      --shadow: rgba(0, 0, 0, 0.32);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 30px 18px 48px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+      margin: 0 0 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0 0 24px;
+      max-width: 75ch;
+      line-height: 1.5;
+    }
+
+    .demo {
+      background: linear-gradient(180deg, rgba(17, 50, 73, 0.92), rgba(7, 24, 36, 0.95));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 18px 40px var(--shadow);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(147, 176, 192, 0.8);
+      background: #081d2d;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: radial-gradient(circle at center, rgba(33, 68, 92, 0.9), rgba(8, 29, 45, 1));
+    }
+
+    .readout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-top: 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .readout strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .stage-nav {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 18px;
+    }
+
+    .stage-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.18s ease;
+      text-align: left;
+    }
+
+    .stage-btn:hover,
+    .stage-btn[aria-pressed="true"] {
+      background: #194a68;
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .levers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .lever-card {
+      border: 1px solid rgba(147, 176, 192, 0.8);
+      border-radius: 12px;
+      background: rgba(18, 59, 91, 0.9);
+      padding: 14px 14px 10px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .lever-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(143, 240, 200, 0.5);
+    }
+
+    .lever-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .lever-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    output {
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .lever-card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.93rem;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .lever-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 72px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(8, 29, 45, 0.95);
+      color: var(--ink);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 780px) {
+      .stage-nav,
+      .levers {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Tokamak Cryostat Stage Diagram</h1>
+    <p class="subtitle">
+      This interactive diagram follows the cryostat stages described in the table: vacuum generation,
+      high-vacuum transition, thermal shielding, and inner magnet cooling. Yellow particles represent residual gas,
+      while cyan particles show helium flow through the thermal shield and magnet cooling system.
+    </p>
+
+    <section class="demo" aria-label="Interactive cryostat stages">
+      <div class="canvas-wrap">
+        <canvas id="cryostatCanvas" width="1100" height="520" aria-label="Animated cryostat diagram"></canvas>
+      </div>
+
+      <div class="readout" aria-live="polite">
+        <span>Selected stage: <strong id="selectedStageText">1 — Pump-down and Vacuum Generation</strong></span>
+        <span>Residual particles: <strong id="residualCountText">~260</strong></span>
+        <span>Status: <strong id="statusText">Pumps are beginning to remove gas</strong></span>
+      </div>
+
+      <nav class="stage-nav" aria-label="Cryostat stages">
+        <button class="stage-btn" type="button" data-stage="0" aria-pressed="true">1. Pump-down</button>
+        <button class="stage-btn" type="button" data-stage="1" aria-pressed="false">2. High vacuum</button>
+        <button class="stage-btn" type="button" data-stage="2" aria-pressed="false">3. Thermal shields</button>
+        <button class="stage-btn" type="button" data-stage="3" aria-pressed="false">4. Magnet cooling</button>
+      </nav>
+
+      <div class="levers">
+        <section class="lever-card active" data-card="0">
+          <div class="lever-head">
+            <h2>1. Pump-down</h2>
+            <output id="out-0" for="lever-0">0%</output>
+          </div>
+          <p>Industrial roughing pumps evacuate large volumes of gas from the cryostat.</p>
+          <div class="slider-row">
+            <input id="lever-0" type="range" min="0" max="100" value="0" aria-label="Pump-down vacuum lever" />
+            <span class="lever-pill">Lever</span>
+          </div>
+        </section>
+
+        <section class="lever-card" data-card="1">
+          <div class="lever-head">
+            <h2>2. High-vacuum</h2>
+            <output id="out-1" for="lever-1">0%</output>
+          </div>
+          <p>Turbomolecular and cryogenic pumps drive the chamber toward ultra-high vacuum.</p>
+          <div class="slider-row">
+            <input id="lever-1" type="range" min="0" max="100" value="0" aria-label="High vacuum lever" />
+            <span class="lever-pill">Lever</span>
+          </div>
+        </section>
+
+        <section class="lever-card" data-card="2">
+          <div class="lever-head">
+            <h2>3. Thermal shielding</h2>
+            <output id="out-2" for="lever-2">0%</output>
+          </div>
+          <p>Gaseous helium cools the thermal shields and reduces heat radiating inward.</p>
+          <div class="slider-row">
+            <input id="lever-2" type="range" min="0" max="100" value="0" aria-label="Thermal shield helium lever" />
+            <span class="lever-pill">Lever</span>
+          </div>
+        </section>
+
+        <section class="lever-card" data-card="3">
+          <div class="lever-head">
+            <h2>4. Magnet cooling</h2>
+            <output id="out-3" for="lever-3">0%</output>
+          </div>
+          <p>Supercritical liquid helium cools the superconducting magnets to about 4.5 K.</p>
+          <div class="slider-row">
+            <input id="lever-3" type="range" min="0" max="100" value="0" aria-label="Magnet cooling helium lever" />
+            <span class="lever-pill">Lever</span>
+          </div>
+        </section>
+      </div>
+
+      <p class="note">
+        Educational schematic only. The moving dots are not to scale and are included to show gas removal and coolant circulation clearly.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('cryostatCanvas');
+    const ctx = canvas.getContext('2d');
+    const stageButtons = [...document.querySelectorAll('.stage-btn')];
+    const leverCards = [...document.querySelectorAll('.lever-card')];
+    const sliders = [...document.querySelectorAll('input[type="range"]')];
+    const selectedStageText = document.getElementById('selectedStageText');
+    const residualCountText = document.getElementById('residualCountText');
+    const statusText = document.getElementById('statusText');
+
+    const stageNames = [
+      'Pump-down and Vacuum Generation',
+      'High-Vacuum Transition',
+      'Thermal Shielding',
+      'Inner Magnetic Cooling'
+    ];
+
+    const values = [0, 0, 0, 0];
+    let activeStage = 0;
+
+    const gasParticles = Array.from({ length: 340 }, () => ({
+      x: 195 + Math.random() * 600,
+      y: 110 + Math.random() * 260,
+      vx: (Math.random() - 0.5) * 1.5,
+      vy: (Math.random() - 0.5) * 1.5,
+      radius: 1.5 + Math.random() * 2.2,
+      hue: Math.random() > 0.75 ? 'amber' : 'amber-soft'
+    }));
+
+    function setStage(stageIndex) {
+      activeStage = stageIndex;
+      stageButtons.forEach((button, idx) => {
+        button.setAttribute('aria-pressed', String(idx === stageIndex));
+      });
+      leverCards.forEach((card, idx) => {
+        card.classList.toggle('active', idx === stageIndex);
+      });
+      updateReadout();
+    }
+
+    function updateReadout() {
+      sliders.forEach((slider, idx) => {
+        values[idx] = Number(slider.value);
+        document.getElementById(`out-${idx}`).textContent = `${values[idx]}%`;
+      });
+
+      const pumpProgress = values[0] / 100;
+      const vacuumProgress = values[1] / 100;
+      const shieldProgress = values[2] / 100;
+      const magnetProgress = values[3] / 100;
+
+      const residualFactor = 1 - 0.66 * pumpProgress - 0.28 * vacuumProgress;
+      const residualCount = Math.max(8, Math.round(260 * Math.max(0.04, residualFactor)));
+      residualCountText.textContent = `~${residualCount}`;
+
+      const statusMap = [
+        pumpProgress > 0 ? 'Roughing pumps are removing gas from the cryostat' : 'Pumps are beginning to remove gas',
+        vacuumProgress > 0 ? 'Turbomolecular pumps are driving the vacuum lower' : 'High-vacuum pumps are still idle',
+        shieldProgress > 0 ? 'Helium is flowing across the thermal shields' : 'Thermal shields are not yet actively cooled',
+        magnetProgress > 0 ? 'Helium is cooling the superconducting magnet structures' : 'Magnet cooling is not yet active'
+      ];
+
+      selectedStageText.textContent = `${activeStage + 1} — ${stageNames[activeStage]}`;
+      statusText.textContent = statusMap[activeStage];
+    }
+
+    function roundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function drawFlowLoop(y, progress, color, label, offset = 0) {
+      ctx.save();
+      ctx.strokeStyle = progress > 0 ? color : 'rgba(113, 230, 255, 0.18)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 10]);
+      ctx.beginPath();
+      ctx.ellipse(520, y, 250, 34, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      if (progress > 0) {
+        const count = 16;
+        for (let i = 0; i < count; i++) {
+          const angle = offset + (i / count) * Math.PI * 2 + performance.now() * 0.0015;
+          const x = 520 + 250 * Math.cos(angle);
+          const yPos = y + 34 * Math.sin(angle);
+          ctx.beginPath();
+          ctx.fillStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 10;
+          ctx.arc(x, yPos, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#dfe7ee';
+      ctx.font = '14px Arial';
+      ctx.fillText(label, 760, y + 4);
+      ctx.restore();
+    }
+
+    function animate() {
+      const t = performance.now() * 0.001;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bg.addColorStop(0, '#081d2d');
+      bg.addColorStop(1, '#0b2b47');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Outer cryostat shell
+      roundedRect(120, 80, 650, 320, 46);
+      ctx.fillStyle = '#1a3d57';
+      ctx.fill();
+      ctx.strokeStyle = '#dfeaf0';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Inner chamber
+      roundedRect(180, 125, 540, 230, 42);
+      ctx.fillStyle = '#0b2941';
+      ctx.fill();
+      ctx.strokeStyle = '#7f9aaf';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Magnet coil
+      ctx.beginPath();
+      ctx.ellipse(470, 240, 118, 78, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = values[3] > 0 ? '#a6eec8' : '#8a6cc7';
+      ctx.lineWidth = 18;
+      ctx.stroke();
+
+      // Core
+      ctx.beginPath();
+      ctx.ellipse(470, 240, 70, 50, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#9cb8c9';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Ports and pump units
+      ctx.strokeStyle = '#d9e9f7';
+      ctx.lineWidth = 9;
+      ctx.beginPath();
+      ctx.moveTo(790, 180);
+      ctx.lineTo(860, 180);
+      ctx.lineTo(860, 230);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(790, 290);
+      ctx.lineTo(860, 290);
+      ctx.lineTo(860, 240);
+      ctx.stroke();
+
+      for (const [x, y, active] of [[860, 180, values[0] > 0], [860, 290, values[1] > 0]]) {
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fillStyle = active ? '#2d8f67' : '#355a72';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#dfeaf0';
+        ctx.stroke();
+      }
+
+      // Labels
+      ctx.fillStyle = '#edf7ff';
+      ctx.font = 'bold 18px Arial';
+      ctx.fillText('Cryostat vessel', 130, 70);
+      ctx.font = '15px Arial';
+      ctx.fillText('Vacuum chamber', 212, 118);
+      ctx.fillText('Superconducting magnets', 313, 335);
+
+      // Particle motion
+      const residualTarget = Math.max(20, Math.round(260 * (1 - 0.62 * values[0] / 100) * (1 - 0.3 * values[1] / 100)));
+      const pumpStrength = 1 + (values[0] + values[1]) / 120;
+
+      for (let i = 0; i < residualTarget; i++) {
+        const p = gasParticles[i];
+        p.x += p.vx * pumpStrength;
+        p.y += p.vy * pumpStrength;
+        if (p.x < 175 || p.x > 695) p.vx *= -1;
+        if (p.y < 105 || p.y > 340) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.fillStyle = p.hue === 'amber' ? '#ffd36a' : 'rgba(255, 211, 106, 0.35)';
+        ctx.shadowColor = '#ffd36a';
+        ctx.shadowBlur = 8;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // Helium flow loops
+      drawFlowLoop(145, values[2], '#71e6ff', 'Helium thermal shield flow', t * 1.8);
+      drawFlowLoop(370, values[3], '#9cead3', 'Helium magnet cooling loop', t * 1.4 + 1.8);
+
+      // Indicator legend
+      ctx.fillStyle = '#ffffe0';
+      ctx.beginPath();
+      ctx.arc(140, 440, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#edf7ff';
+      ctx.font = '14px Arial';
+      ctx.fillText('Residual gas particles', 152, 446);
+
+      ctx.fillStyle = '#71e6ff';
+      ctx.beginPath();
+      ctx.arc(360, 440, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#edf7ff';
+      ctx.fillText('Helium flow', 372, 446);
+
+      requestAnimationFrame(animate);
+    }
+
+    sliders.forEach((slider, index) => {
+      slider.addEventListener('input', () => {
+        values[index] = Number(slider.value);
+        document.getElementById(`out-${index}`).textContent = `${values[index]}%`;
+        if (index !== activeStage) {
+          setStage(index);
+        }
+        updateReadout();
+      });
+    });
+
+    stageButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setStage(Number(button.dataset.stage));
+      });
+    });
+
+    updateReadout();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
