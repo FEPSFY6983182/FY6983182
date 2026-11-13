@@ -1,537 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tokamak Cryostat Interactive Diagram</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive 3D Tokamak Cryostat</title>
   <style>
     :root {
-      --bg: #0b2b47;
-      --panel: #123b5b;
-      --panel-2: #102a3b;
-      --ink: #eef7ff;
-      --muted: #cfe0ec;
-      --line: #93b0c0;
-      --accent: #8ff0c8;
+      color-scheme: dark;
+      --page: #071d2e;
+      --panel: #103650;
+      --panel-2: #0b2a40;
+      --ink: #f3f8fc;
+      --muted: #c1d5e2;
+      --line: #62849a;
+      --mint: #8ff0c8;
       --cyan: #71e6ff;
       --amber: #ffd36a;
-      --amber-soft: rgba(255, 211, 106, 0.35);
-      --magenta: #c7a3ff;
-      --shadow: rgba(0, 0, 0, 0.32);
+      --purple: #c7a3ff;
     }
-
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
-      padding: 30px 18px 48px;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: clamp(1.8rem, 2.8vw, 2.8rem);
-      margin: 0 0 8px;
-      letter-spacing: 0.03em;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin: 0 0 24px;
-      max-width: 75ch;
-      line-height: 1.5;
-    }
-
-    .demo {
-      background: linear-gradient(180deg, rgba(17, 50, 73, 0.92), rgba(7, 24, 36, 0.95));
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 18px 40px var(--shadow);
-    }
-
-    .canvas-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 16px;
-      border: 1px solid rgba(147, 176, 192, 0.8);
-      background: #081d2d;
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      background: radial-gradient(circle at center, rgba(33, 68, 92, 0.9), rgba(8, 29, 45, 1));
-    }
-
-    .readout {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 20px;
-      margin-top: 14px;
-      font-size: 0.95rem;
-      color: var(--muted);
-    }
-
-    .readout strong {
-      color: var(--ink);
-      font-weight: 700;
-    }
-
-    .stage-nav {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin: 20px 0 18px;
-    }
-
-    .stage-btn {
-      appearance: none;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--ink);
-      font: inherit;
-      padding: 12px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.18s ease;
-      text-align: left;
-    }
-
-    .stage-btn:hover,
-    .stage-btn[aria-pressed="true"] {
-      background: #194a68;
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .levers {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 8px;
-    }
-
-    .lever-card {
-      border: 1px solid rgba(147, 176, 192, 0.8);
-      border-radius: 12px;
-      background: rgba(18, 59, 91, 0.9);
-      padding: 14px 14px 10px;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .lever-card.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(143, 240, 200, 0.5);
-    }
-
-    .lever-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 8px;
-    }
-
-    .lever-head h2 {
-      margin: 0;
-      font-size: 1.05rem;
-    }
-
-    output {
-      color: var(--accent);
-      font-weight: 700;
-      min-width: 52px;
-      text-align: right;
-    }
-
-    .lever-card p {
-      margin: 0 0 14px;
-      color: var(--muted);
-      line-height: 1.4;
-      font-size: 0.93rem;
-    }
-
-    .slider-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
-
-    .lever-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 72px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(8, 29, 45, 0.95);
-      color: var(--ink);
-      font-size: 0.78rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .note {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 780px) {
-      .stage-nav,
-      .levers {
-        grid-template-columns: 1fr;
-      }
-    }
+    body { margin: 0; padding: 28px 16px 48px; background: var(--page); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+    main { width: min(1120px, 100%); margin: auto; }
+    h1 { margin: 0 0 .4rem; font-size: clamp(1.7rem, 3vw, 2.5rem); }
+    h2 { margin: 0 0 .45rem; font-size: 1.15rem; }
+    p { color: var(--muted); }
+    .intro { max-width: 78ch; margin-top: 0; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(270px, .8fr); gap: 16px; }
+    .model-panel, .info-panel { border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); overflow: hidden; }
+    .model-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; padding: 12px 14px; background: var(--panel); }
+    .model-head strong { font-size: .95rem; }
+    .model-head span { color: var(--muted); font-size: .85rem; }
+    #model { height: min(62vw, 560px); min-height: 340px; position: relative; background: radial-gradient(ellipse at center, #183b52 0%, #071d2e 75%); }
+    #model canvas { display:block; width:100%; height:100%; }
+    .model-help { margin: 0; padding: 8px 14px 12px; font-size: .82rem; }
+    .info-panel { padding: 16px; }
+    .stage-count { color: var(--mint); font-weight: 700; font-size: .84rem; text-transform: uppercase; letter-spacing: .06em; }
+    #stage-title { margin: 5px 0; font-size: 1.3rem; }
+    #stage-description { min-height: 92px; margin: 0; }
+    .target { margin: 12px 0 16px; padding: 10px 12px; border-left: 3px solid var(--mint); background: rgba(143,240,200,.08); color: var(--ink); font-size: .9rem; }
+    .controls { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin: 14px 0; }
+    button { min-height: 42px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font: inherit; cursor:pointer; }
+    button:hover, button[aria-pressed="true"] { border-color:var(--mint); background:#194a5f; }
+    button:focus-visible { outline:3px solid #ffe66d; outline-offset:2px; }
+    .stage-list { display:grid; gap:7px; margin-top:12px; }
+    .stage-list button { text-align:left; font-size:.9rem; }
+    .key { display:grid; gap:7px; margin-top:18px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:.86rem; }
+    .key span { display:flex; align-items:center; gap:8px; }
+    .dot { width:11px; height:11px; border-radius:50%; display:inline-block; }
+    .caveat { margin:16px 0 0; font-size:.84rem; }
+    .error { padding:1rem; color:#ffe0a6; }
+    @media(max-width:800px) { .layout { grid-template-columns:1fr; } #model { height: min(76vw, 500px); min-height:310px; } }
+    @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Tokamak Cryostat Stage Diagram</h1>
-    <p class="subtitle">
-      This interactive diagram follows the cryostat stages described in the table: vacuum generation,
-      high-vacuum transition, thermal shielding, and inner magnet cooling. Yellow particles represent residual gas,
-      while cyan particles show helium flow through the thermal shield and magnet cooling system.
-    </p>
+<main>
+  <h1>Inside a tokamak cryostat</h1>
+  <p class="intro">Explore a simple 3D cutaway of the large vacuum vessel around a tokamak. Press <b>Play sequence</b> to see the four preparation and cooling stages from the cryostat table. Drag the model to rotate it and use the mouse wheel or pinch to zoom.</p>
 
-    <section class="demo" aria-label="Interactive cryostat stages">
-      <div class="canvas-wrap">
-        <canvas id="cryostatCanvas" width="1100" height="520" aria-label="Animated cryostat diagram"></canvas>
-      </div>
-
-      <div class="readout" aria-live="polite">
-        <span>Selected stage: <strong id="selectedStageText">1 — Pump-down and Vacuum Generation</strong></span>
-        <span>Residual particles: <strong id="residualCountText">~260</strong></span>
-        <span>Status: <strong id="statusText">Pumps are beginning to remove gas</strong></span>
-      </div>
-
-      <nav class="stage-nav" aria-label="Cryostat stages">
-        <button class="stage-btn" type="button" data-stage="0" aria-pressed="true">1. Pump-down</button>
-        <button class="stage-btn" type="button" data-stage="1" aria-pressed="false">2. High vacuum</button>
-        <button class="stage-btn" type="button" data-stage="2" aria-pressed="false">3. Thermal shields</button>
-        <button class="stage-btn" type="button" data-stage="3" aria-pressed="false">4. Magnet cooling</button>
-      </nav>
-
-      <div class="levers">
-        <section class="lever-card active" data-card="0">
-          <div class="lever-head">
-            <h2>1. Pump-down</h2>
-            <output id="out-0" for="lever-0">0%</output>
-          </div>
-          <p>Industrial roughing pumps evacuate large volumes of gas from the cryostat.</p>
-          <div class="slider-row">
-            <input id="lever-0" type="range" min="0" max="100" value="0" aria-label="Pump-down vacuum lever" />
-            <span class="lever-pill">Lever</span>
-          </div>
-        </section>
-
-        <section class="lever-card" data-card="1">
-          <div class="lever-head">
-            <h2>2. High-vacuum</h2>
-            <output id="out-1" for="lever-1">0%</output>
-          </div>
-          <p>Turbomolecular and cryogenic pumps drive the chamber toward ultra-high vacuum.</p>
-          <div class="slider-row">
-            <input id="lever-1" type="range" min="0" max="100" value="0" aria-label="High vacuum lever" />
-            <span class="lever-pill">Lever</span>
-          </div>
-        </section>
-
-        <section class="lever-card" data-card="2">
-          <div class="lever-head">
-            <h2>3. Thermal shielding</h2>
-            <output id="out-2" for="lever-2">0%</output>
-          </div>
-          <p>Gaseous helium cools the thermal shields and reduces heat radiating inward.</p>
-          <div class="slider-row">
-            <input id="lever-2" type="range" min="0" max="100" value="0" aria-label="Thermal shield helium lever" />
-            <span class="lever-pill">Lever</span>
-          </div>
-        </section>
-
-        <section class="lever-card" data-card="3">
-          <div class="lever-head">
-            <h2>4. Magnet cooling</h2>
-            <output id="out-3" for="lever-3">0%</output>
-          </div>
-          <p>Supercritical liquid helium cools the superconducting magnets to about 4.5 K.</p>
-          <div class="slider-row">
-            <input id="lever-3" type="range" min="0" max="100" value="0" aria-label="Magnet cooling helium lever" />
-            <span class="lever-pill">Lever</span>
-          </div>
-        </section>
-      </div>
-
-      <p class="note">
-        Educational schematic only. The moving dots are not to scale and are included to show gas removal and coolant circulation clearly.
-      </p>
+  <div class="layout">
+    <section class="model-panel" aria-label="Interactive cryostat 3D model">
+      <div class="model-head"><strong>3D cutaway model</strong><span>Drag to rotate · scroll to zoom</span></div>
+      <div id="model" role="img" aria-label="Interactive three-dimensional cutaway of a tokamak cryostat"></div>
+      <p class="model-help">The vessel is opened visually so the nested shields, magnet coils, and central tokamak can be seen.</p>
     </section>
-  </main>
 
-  <script>
-    const canvas = document.getElementById('cryostatCanvas');
-    const ctx = canvas.getContext('2d');
-    const stageButtons = [...document.querySelectorAll('.stage-btn')];
-    const leverCards = [...document.querySelectorAll('.lever-card')];
-    const sliders = [...document.querySelectorAll('input[type="range"]')];
-    const selectedStageText = document.getElementById('selectedStageText');
-    const residualCountText = document.getElementById('residualCountText');
-    const statusText = document.getElementById('statusText');
+    <aside class="info-panel" aria-live="polite">
+      <div class="stage-count" id="stage-count">Stage 1 of 4</div>
+      <h2 id="stage-title">Pump-down and vacuum generation</h2>
+      <p id="stage-description">Roughing pumps remove most of the gas from the large cryostat volume. The yellow dots are a simplified view of residual gas molecules moving toward the pump outlets.</p>
+      <div class="target" id="stage-target"><b>What to notice:</b> the roughing-pump ports open and the number of yellow particles falls.</div>
+      <div class="controls">
+        <button id="previous" type="button">← Previous</button>
+        <button id="next" type="button">Next →</button>
+        <button id="play" type="button" aria-pressed="false">▶ Play sequence</button>
+        <button id="reset-view" type="button">Reset view</button>
+      </div>
+      <nav class="stage-list" aria-label="Choose a cryostat stage">
+        <button type="button" data-stage="0" aria-pressed="true">1 · Pump-down</button>
+        <button type="button" data-stage="1" aria-pressed="false">2 · High vacuum</button>
+        <button type="button" data-stage="2" aria-pressed="false">3 · Thermal shielding</button>
+        <button type="button" data-stage="3" aria-pressed="false">4 · Magnet cooling</button>
+      </nav>
+      <div class="key" aria-label="Diagram key">
+        <span><i class="dot" style="background:#ffd36a"></i>Residual gas in the vessel</span>
+        <span><i class="dot" style="background:#71e6ff"></i>Gaseous helium in the thermal shield</span>
+        <span><i class="dot" style="background:#8ff0c8"></i>Cold helium in the magnet cooling circuit</span>
+        <span><i class="dot" style="background:#c7a3ff"></i>Superconducting magnet coils</span>
+      </div>
+    </aside>
+  </div>
+  <p class="caveat">This is an explanatory schematic, not an engineering-scale model. Particle counts, motion, and colours illustrate the processes; they do not represent measured pressure, temperature, or real particle density. The helium circuits are shown separately from the evacuated vessel.</p>
+</main>
 
-    const stageNames = [
-      'Pump-down and Vacuum Generation',
-      'High-Vacuum Transition',
-      'Thermal Shielding',
-      'Inner Magnetic Cooling'
-    ];
+<script type="module">
+  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
+  import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/controls/OrbitControls.js';
 
-    const values = [0, 0, 0, 0];
-    let activeStage = 0;
+  const modelEl = document.getElementById('model');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#081d2d');
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  camera.position.set(8.8, 6.8, 10.5);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor('#081d2d');
+  modelEl.appendChild(renderer.domElement);
 
-    const gasParticles = Array.from({ length: 340 }, () => ({
-      x: 195 + Math.random() * 600,
-      y: 110 + Math.random() * 260,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: (Math.random() - 0.5) * 1.5,
-      radius: 1.5 + Math.random() * 2.2,
-      hue: Math.random() > 0.75 ? 'amber' : 'amber-soft'
-    }));
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0, 0);
+  controls.enableDamping = true;
+  controls.minDistance = 7;
+  controls.maxDistance = 20;
+  controls.maxPolarAngle = Math.PI * .88;
 
-    function setStage(stageIndex) {
-      activeStage = stageIndex;
-      stageButtons.forEach((button, idx) => {
-        button.setAttribute('aria-pressed', String(idx === stageIndex));
-      });
-      leverCards.forEach((card, idx) => {
-        card.classList.toggle('active', idx === stageIndex);
-      });
-      updateReadout();
+  scene.add(new THREE.HemisphereLight(0xc9eaff, 0x112338, 2.1));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+  keyLight.position.set(7, 9, 8);
+  scene.add(keyLight);
+  const rimLight = new THREE.PointLight(0x54cfff, 28, 25);
+  rimLight.position.set(-6, 2, -4);
+  scene.add(rimLight);
+
+  const vesselGroup = new THREE.Group();
+  scene.add(vesselGroup);
+  const material = (color, opacity = 1, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: .48, metalness: .22, transparent: opacity < 1, opacity, side: THREE.DoubleSide, ...extra });
+
+  // Base and outer cylindrical cryostat vessel, opened with a cutaway sector.
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(4.25, 4.25, .28, 64), material('#526d7d', 1, { metalness: .65 }));
+  base.position.y = -3.2;
+  vesselGroup.add(base);
+  const vessel = new THREE.Mesh(new THREE.CylinderGeometry(3.65, 3.65, 6.1, 64, 1, true, .35, Math.PI * 1.72), material('#a8c4d2', .2, { metalness: .45, depthWrite: false }));
+  vessel.add(new THREE.Mesh(new THREE.TorusGeometry(3.65, .12, 12, 64), material('#cbd9df', .92, { metalness: .6 })));
+  const rimTop = vessel.children[0].clone(); rimTop.position.y = 3.05; vessel.add(rimTop);
+  vesselGroup.add(vessel);
+  const bottomCap = new THREE.Mesh(new THREE.CylinderGeometry(3.65, 3.65, .16, 64), material('#7593a3', .62));
+  bottomCap.position.y = -3.02; vesselGroup.add(bottomCap);
+
+  // Inner radiation / thermal shield: a clearly visible nested shell.
+  const shield = new THREE.Mesh(new THREE.CylinderGeometry(2.95, 2.95, 5.2, 64, 1, true, .35, Math.PI * 1.72), material('#54a8b8', .28, { metalness: .35, emissive: '#06333c', emissiveIntensity: .25, depthWrite: false }));
+  vesselGroup.add(shield);
+  const shieldRingTop = new THREE.Mesh(new THREE.TorusGeometry(2.95, .075, 10, 64), material('#7bd9e8', .82));
+  shieldRingTop.position.y = 2.6; vesselGroup.add(shieldRingTop);
+  const shieldRingBottom = shieldRingTop.clone(); shieldRingBottom.position.y = -2.6; vesselGroup.add(shieldRingBottom);
+
+  // Simplified tokamak vacuum vessel and doughnut-shaped plasma chamber.
+  const coreVessel = new THREE.Mesh(new THREE.TorusGeometry(1.38, .55, 24, 72), material('#e19d63', .82, { metalness: .3 }));
+  coreVessel.rotation.x = Math.PI / 2;
+  coreVessel.position.y = -.1;
+  vesselGroup.add(coreVessel);
+  const plasma = new THREE.Mesh(new THREE.TorusGeometry(1.38, .32, 24, 72), material('#ff5ca8', .52, { emissive: '#dd216d', emissiveIntensity: .8, depthWrite: false }));
+  plasma.rotation.x = Math.PI / 2; plasma.position.y = -.1; vesselGroup.add(plasma);
+
+  // Ring-shaped superconducting coils surrounding the tokamak.
+  const magnetGroup = new THREE.Group();
+  const magnetMaterial = material('#9875d0', .94, { metalness: .42, emissive: '#382459', emissiveIntensity: .22 });
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const coil = new THREE.Mesh(new THREE.TorusGeometry(2.12, .17, 14, 48), magnetMaterial);
+    coil.rotation.x = Math.PI / 2;
+    coil.position.set(Math.cos(angle) * .2, -2.05 + i * .585, Math.sin(angle) * .2);
+    magnetGroup.add(coil);
+  }
+  vesselGroup.add(magnetGroup);
+
+  // Two visible schematic pump outlets on the cutaway side.
+  const pipeMaterial = material('#b4c9d4', .95, { metalness: .58 });
+  function addPipe(points, radius = .14) {
+    const curve = new THREE.CatmullRomCurve3(points.map(point => new THREE.Vector3(...point)));
+    const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 32, radius, 10, false), pipeMaterial);
+    vesselGroup.add(mesh);
+    return mesh;
+  }
+  addPipe([[2.7, 1.3, .7], [3.45, 1.3, .7], [4.1, 1.3, .7], [4.1, .2, .7]]);
+  addPipe([[2.7, -1.35, .7], [3.5, -1.35, .7], [4.1, -1.35, .7], [4.1, -.3, .7]]);
+  const pumpMeshes = [];
+  for (const y of [.2, -.3]) {
+    const pump = new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, .56, 32), material('#40677e', .98, { metalness: .5 }));
+    pump.rotation.z = Math.PI / 2; pump.position.set(4.25, y, .7); vesselGroup.add(pump); pumpMeshes.push(pump);
+    const face = new THREE.Mesh(new THREE.TorusGeometry(.3, .055, 10, 32), material('#c8dce6', .95));
+    face.rotation.y = Math.PI / 2; face.position.set(4.55, y, .7); vesselGroup.add(face);
+  }
+
+  // Separate helium circuits, deliberately drawn outside the evacuated gas volume.
+  function makeLoop(radius, y, color, tubeRadius) {
+    const curve = new THREE.EllipseCurve(0, 0, radius, radius * .55, 0, Math.PI * 2, false, 0);
+    const points = curve.getPoints(100).map(p => new THREE.Vector3(p.x, y + p.y * .18, 0));
+    const path = new THREE.CatmullRomCurve3(points, true);
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(path, 120, tubeRadius, 8, true), material(color, .9, { emissive: color, emissiveIntensity: .22 }));
+    vesselGroup.add(tube);
+    return path;
+  }
+  const shieldPath = makeLoop(3.12, 2.72, '#3dcde5', .055);
+  const magnetPath = makeLoop(2.43, -2.82, '#75e9bd', .065);
+
+  // A large set of residual-gas dots inside the vessel, plus helium flow markers.
+  const gasCount = 330;
+  const gasPositions = new Float32Array(gasCount * 3);
+  const gasMotion = [];
+  for (let i = 0; i < gasCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.sqrt(Math.random()) * 2.65;
+    const y = (Math.random() - .5) * 4.7;
+    gasPositions[i * 3] = radius * Math.cos(angle);
+    gasPositions[i * 3 + 1] = y;
+    gasPositions[i * 3 + 2] = radius * Math.sin(angle);
+    gasMotion.push({ vx: (Math.random() - .5) * .012, vy: (Math.random() - .5) * .018, vz: (Math.random() - .5) * .012, phase: Math.random() * Math.PI * 2 });
+  }
+  const gasGeometry = new THREE.BufferGeometry();
+  gasGeometry.setAttribute('position', new THREE.BufferAttribute(gasPositions, 3));
+  const gasMaterial = new THREE.PointsMaterial({ color: '#ffd36a', size: .075, transparent: true, opacity: .9, sizeAttenuation: true });
+  const gasPoints = new THREE.Points(gasGeometry, gasMaterial);
+  vesselGroup.add(gasPoints);
+
+  function createFlowDots(path, color, count) {
+    const group = new THREE.Group();
+    const dotMaterial = new THREE.MeshBasicMaterial({ color });
+    const geometry = new THREE.SphereGeometry(.075, 10, 10);
+    const dots = [];
+    for (let i = 0; i < count; i++) {
+      const dot = new THREE.Mesh(geometry, dotMaterial);
+      group.add(dot); dots.push(dot);
     }
+    vesselGroup.add(group);
+    return { path, dots };
+  }
+  const shieldDots = createFlowDots(shieldPath, '#71e6ff', 22);
+  const magnetDots = createFlowDots(magnetPath, '#8ff0c8', 22);
 
-    function updateReadout() {
-      sliders.forEach((slider, idx) => {
-        values[idx] = Number(slider.value);
-        document.getElementById(`out-${idx}`).textContent = `${values[idx]}%`;
-      });
-
-      const pumpProgress = values[0] / 100;
-      const vacuumProgress = values[1] / 100;
-      const shieldProgress = values[2] / 100;
-      const magnetProgress = values[3] / 100;
-
-      const residualFactor = 1 - 0.66 * pumpProgress - 0.28 * vacuumProgress;
-      const residualCount = Math.max(8, Math.round(260 * Math.max(0.04, residualFactor)));
-      residualCountText.textContent = `~${residualCount}`;
-
-      const statusMap = [
-        pumpProgress > 0 ? 'Roughing pumps are removing gas from the cryostat' : 'Pumps are beginning to remove gas',
-        vacuumProgress > 0 ? 'Turbomolecular pumps are driving the vacuum lower' : 'High-vacuum pumps are still idle',
-        shieldProgress > 0 ? 'Helium is flowing across the thermal shields' : 'Thermal shields are not yet actively cooled',
-        magnetProgress > 0 ? 'Helium is cooling the superconducting magnet structures' : 'Magnet cooling is not yet active'
-      ];
-
-      selectedStageText.textContent = `${activeStage + 1} — ${stageNames[activeStage]}`;
-      statusText.textContent = statusMap[activeStage];
+  const stages = [
+    {
+      title: 'Pump-down and vacuum generation',
+      description: 'Roughing pumps remove most of the gas from the large cryostat volume. The yellow dots are a simplified view of residual gas molecules moving toward the pump outlets.',
+      target: '<b>What to notice:</b> the roughing-pump ports open and the number of yellow particles falls.',
+      duration: 5200
+    },
+    {
+      title: 'High-vacuum transition',
+      description: 'Turbomolecular and cryogenic pumps continue removing gas after the roughing stage. The table gives an illustrative ultra-high-vacuum target of 1 × 10⁻⁴ Pa.',
+      target: '<b>What to notice:</b> fewer residual-gas dots remain. The pressure value is a reference from the table, not a live calculation.',
+      duration: 5200
+    },
+    {
+      title: 'Thermal shielding',
+      description: 'Gaseous helium flows through the thermal shields. The shields intercept heat radiating inward from the warmer outer cryostat shell; the table gives 80 K as the shield temperature.',
+      target: '<b>What to notice:</b> cyan helium markers circulate around the shield layer, separate from the vacuum gas.',
+      duration: 5600
+    },
+    {
+      title: 'Inner magnetic cooling',
+      description: 'Supercritical liquid helium circulates through the internal magnet structures. Cooling the superconducting magnets toward 4.5 K allows them to carry current with very low electrical resistance.',
+      target: '<b>What to notice:</b> mint helium markers circulate around the purple magnet coils, which brighten as this stage is demonstrated.',
+      duration: 5600
     }
+  ];
+  let currentStage = 0;
+  let playing = false;
+  let stageStarted = performance.now();
+  let lastFrame = 0;
 
-    function roundedRect(x, y, width, height, radius) {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-    }
-
-    function drawFlowLoop(y, progress, color, label, offset = 0) {
-      ctx.save();
-      ctx.strokeStyle = progress > 0 ? color : 'rgba(113, 230, 255, 0.18)';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([8, 10]);
-      ctx.beginPath();
-      ctx.ellipse(520, y, 250, 34, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      if (progress > 0) {
-        const count = 16;
-        for (let i = 0; i < count; i++) {
-          const angle = offset + (i / count) * Math.PI * 2 + performance.now() * 0.0015;
-          const x = 520 + 250 * Math.cos(angle);
-          const yPos = y + 34 * Math.sin(angle);
-          ctx.beginPath();
-          ctx.fillStyle = color;
-          ctx.shadowColor = color;
-          ctx.shadowBlur = 10;
-          ctx.arc(x, yPos, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#dfe7ee';
-      ctx.font = '14px Arial';
-      ctx.fillText(label, 760, y + 4);
-      ctx.restore();
-    }
-
-    function animate() {
-      const t = performance.now() * 0.001;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bg.addColorStop(0, '#081d2d');
-      bg.addColorStop(1, '#0b2b47');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Outer cryostat shell
-      roundedRect(120, 80, 650, 320, 46);
-      ctx.fillStyle = '#1a3d57';
-      ctx.fill();
-      ctx.strokeStyle = '#dfeaf0';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      // Inner chamber
-      roundedRect(180, 125, 540, 230, 42);
-      ctx.fillStyle = '#0b2941';
-      ctx.fill();
-      ctx.strokeStyle = '#7f9aaf';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Magnet coil
-      ctx.beginPath();
-      ctx.ellipse(470, 240, 118, 78, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = values[3] > 0 ? '#a6eec8' : '#8a6cc7';
-      ctx.lineWidth = 18;
-      ctx.stroke();
-
-      // Core
-      ctx.beginPath();
-      ctx.ellipse(470, 240, 70, 50, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#9cb8c9';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Ports and pump units
-      ctx.strokeStyle = '#d9e9f7';
-      ctx.lineWidth = 9;
-      ctx.beginPath();
-      ctx.moveTo(790, 180);
-      ctx.lineTo(860, 180);
-      ctx.lineTo(860, 230);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(790, 290);
-      ctx.lineTo(860, 290);
-      ctx.lineTo(860, 240);
-      ctx.stroke();
-
-      for (const [x, y, active] of [[860, 180, values[0] > 0], [860, 290, values[1] > 0]]) {
-        ctx.beginPath();
-        ctx.arc(x, y, 30, 0, Math.PI * 2);
-        ctx.fillStyle = active ? '#2d8f67' : '#355a72';
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#dfeaf0';
-        ctx.stroke();
-      }
-
-      // Labels
-      ctx.fillStyle = '#edf7ff';
-      ctx.font = 'bold 18px Arial';
-      ctx.fillText('Cryostat vessel', 130, 70);
-      ctx.font = '15px Arial';
-      ctx.fillText('Vacuum chamber', 212, 118);
-      ctx.fillText('Superconducting magnets', 313, 335);
-
-      // Particle motion
-      const residualTarget = Math.max(20, Math.round(260 * (1 - 0.62 * values[0] / 100) * (1 - 0.3 * values[1] / 100)));
-      const pumpStrength = 1 + (values[0] + values[1]) / 120;
-
-      for (let i = 0; i < residualTarget; i++) {
-        const p = gasParticles[i];
-        p.x += p.vx * pumpStrength;
-        p.y += p.vy * pumpStrength;
-        if (p.x < 175 || p.x > 695) p.vx *= -1;
-        if (p.y < 105 || p.y > 340) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.fillStyle = p.hue === 'amber' ? '#ffd36a' : 'rgba(255, 211, 106, 0.35)';
-        ctx.shadowColor = '#ffd36a';
-        ctx.shadowBlur = 8;
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.shadowBlur = 0;
-
-      // Helium flow loops
-      drawFlowLoop(145, values[2], '#71e6ff', 'Helium thermal shield flow', t * 1.8);
-      drawFlowLoop(370, values[3], '#9cead3', 'Helium magnet cooling loop', t * 1.4 + 1.8);
-
-      // Indicator legend
-      ctx.fillStyle = '#ffffe0';
-      ctx.beginPath();
-      ctx.arc(140, 440, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#edf7ff';
-      ctx.font = '14px Arial';
-      ctx.fillText('Residual gas particles', 152, 446);
-
-      ctx.fillStyle = '#71e6ff';
-      ctx.beginPath();
-      ctx.arc(360, 440, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#edf7ff';
-      ctx.fillText('Helium flow', 372, 446);
-
-      requestAnimationFrame(animate);
-    }
-
-    sliders.forEach((slider, index) => {
-      slider.addEventListener('input', () => {
-        values[index] = Number(slider.value);
-        document.getElementById(`out-${index}`).textContent = `${values[index]}%`;
-        if (index !== activeStage) {
-          setStage(index);
-        }
-        updateReadout();
-      });
+  function setStage(index) {
+    currentStage = (index + stages.length) % stages.length;
+    stageStarted = performance.now();
+    const stage = stages[currentStage];
+    document.getElementById('stage-count').textContent = `Stage ${currentStage + 1} of ${stages.length}`;
+    document.getElementById('stage-title').textContent = stage.title;
+    document.getElementById('stage-description').textContent = stage.description;
+    document.getElementById('stage-target').innerHTML = stage.target;
+    document.querySelectorAll('[data-stage]').forEach((button, i) => button.setAttribute('aria-pressed', String(i === currentStage)));
+    gasMaterial.opacity = currentStage < 2 ? .9 : .2;
+    pumpMeshes.forEach((pump, i) => {
+      pump.material.color.setHex(currentStage >= (i === 0 ? 0 : 1) ? 0x3e9b77 : 0x40677e);
+      pump.material.emissive.setHex(currentStage >= (i === 0 ? 0 : 1) ? 0x103d2d : 0x000000);
     });
+  }
 
-    stageButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        setStage(Number(button.dataset.stage));
-      });
-    });
+  function setPlaying(value) {
+    playing = value;
+    const button = document.getElementById('play');
+    button.setAttribute('aria-pressed', String(value));
+    button.textContent = value ? 'Ⅱ Pause sequence' : '▶ Play sequence';
+    if (value) stageStarted = performance.now();
+  }
+  document.getElementById('previous').addEventListener('click', () => { setPlaying(false); setStage(currentStage - 1); });
+  document.getElementById('next').addEventListener('click', () => { setPlaying(false); setStage(currentStage + 1); });
+  document.querySelectorAll('[data-stage]').forEach(button => button.addEventListener('click', () => { setPlaying(false); setStage(Number(button.dataset.stage)); }));
+  document.getElementById('play').addEventListener('click', () => setPlaying(!playing));
+  document.getElementById('reset-view').addEventListener('click', () => {
+    camera.position.set(8.8, 6.8, 10.5);
+    controls.target.set(0, 0, 0);
+    controls.update();
+  });
 
-    updateReadout();
+  function resize() {
+    const width = Math.max(1, modelEl.clientWidth);
+    const height = Math.max(1, modelEl.clientHeight);
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(modelEl);
+  resize();
+
+  function animate(now) {
     requestAnimationFrame(animate);
-  </script>
+    if (now - lastFrame < 30) return;
+    lastFrame = now;
+    const elapsed = now * .001;
+    const positions = gasGeometry.attributes.position.array;
+    const pumpStrength = currentStage === 0 ? 1.45 : currentStage === 1 ? 2.05 : .45;
+    const visibleGas = currentStage === 0 ? gasCount : currentStage === 1 ? 95 : 45;
+    for (let i = 0; i < gasCount; i++) {
+      const j = i * 3;
+      const motion = gasMotion[i];
+      if (i < visibleGas) {
+        positions[j] += motion.vx * pumpStrength;
+        positions[j + 1] += motion.vy * pumpStrength;
+        positions[j + 2] += motion.vz * pumpStrength;
+        if (Math.abs(positions[j]) > 2.7 || Math.abs(positions[j + 2]) > 2.7) { positions[j] *= -.88; positions[j + 2] *= -.88; }
+        if (positions[j + 1] > 2.35 || positions[j + 1] < -2.35) motion.vy *= -1;
+      } else {
+        // Keep evacuated-stage dots tucked out of sight in the vessel model.
+        positions[j + 1] = -20;
+      }
+    }
+    gasGeometry.attributes.position.needsUpdate = true;
+    gasGeometry.computeBoundingSphere();
+
+    const shieldVisible = currentStage >= 2;
+    const magnetVisible = currentStage >= 3;
+    shieldDots.dots.forEach((dot, i) => {
+      const p = shieldPath.getPointAt((i / shieldDots.dots.length + elapsed * .075) % 1);
+      dot.position.copy(p); dot.visible = shieldVisible;
+    });
+    magnetDots.dots.forEach((dot, i) => {
+      const p = magnetPath.getPointAt((i / magnetDots.dots.length + elapsed * .105) % 1);
+      dot.position.copy(p); dot.visible = magnetVisible;
+    });
+    shield.material.emissiveIntensity = currentStage === 2 ? .72 + .18 * Math.sin(elapsed * 4) : .22;
+    magnetMaterial.emissiveIntensity = currentStage === 3 ? .8 + .25 * Math.sin(elapsed * 4) : .22;
+    plasma.material.emissiveIntensity = .65 + .22 * Math.sin(elapsed * 2.3);
+
+    // Brief sequence: automatically advances through each process.
+    if (playing && now - stageStarted >= stages[currentStage].duration) {
+      if (currentStage === stages.length - 1) {
+        setPlaying(false);
+        setStage(0);
+      } else {
+        setStage(currentStage + 1);
+      }
+    }
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  setStage(0);
+  requestAnimationFrame(animate);
+</script>
 </body>
 </html>
