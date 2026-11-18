@@ -1,1 +1,41 @@
-<PLACEHOLDER>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071b2b">
+<title>Tokamak Cryostat — Interactive Simulation</title>
+<style>
+:root{color-scheme:dark;--bg:#071b2b;--panel:#0d2a3d;--ink:#f4f8fc;--muted:#bfd1dd;--cyan:#71e6ff}
+*{box-sizing:border-box}body{margin:0;padding:28px 16px 48px;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1180px,100%);margin:auto}h1{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.15;margin:0 0 .4rem}.intro{max-width:78ch;margin:0 0 1.2rem;color:var(--muted)}.visual{border:1px solid #42667d;border-radius:14px;background:var(--panel);overflow:hidden}.visual-head{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid #42667d}.visual-head span{color:var(--muted);font-size:.85rem}.svg-wrap{padding:8px;background:radial-gradient(ellipse at center,#12354a 0%,#081f30 76%)}svg{display:block;width:100%;height:auto;min-height:300px}.small-label,.hardware-label,.pump-label{fill:#d7e5ec;font:14px system-ui,sans-serif}.hardware-label{font-weight:700;letter-spacing:1px}.pump-label{text-anchor:middle}.outer-shell{fill:#96b8c5;fill-opacity:.09;stroke:#c3d6df;stroke-width:5}.shield-shell{fill:#48c9dd;fill-opacity:.04;stroke:#71e6ff;stroke-width:3}.coil{fill:#18384b;stroke:#b7c8d1;stroke-width:10;fill-rule:evenodd}.coil-hi{fill:none;stroke:#f2f7ff;stroke-width:2}.plasma{fill:#ff4d9d;stroke:#ff91c4;stroke-width:2}.pump-body{fill:#183e53;stroke:#a9c2ce;stroke-width:3}.flow{fill:none;stroke:#75d9ff;stroke-width:3;stroke-dasharray:8 6}.diagram-label{cursor:help;transition:fill .15s,filter .15s;outline:none}.diagram-label:focus{fill:#fff;filter:drop-shadow(0 0 6px #bde8ff)}.highlight{filter:drop-shadow(0 0 7px #bde8ff)!important;stroke:#d8f6ff!important;stroke-width:6!important;opacity:1!important}.pump.highlight .pump-body{stroke:#d8f6ff!important;stroke-width:5!important;filter:drop-shadow(0 0 7px #bde8ff)}.hologram-line-glow{fill:none;stroke:#168bff;stroke-width:7;opacity:.55;filter:blur(3px)}.hologram-line{fill:none;stroke:#75d9ff;stroke-width:2;stroke-dasharray:7 4}.hologram-node{fill:#d8f6ff;stroke:#35adff;stroke-width:3;filter:drop-shadow(0 0 5px #168bff)}.footer{margin-top:16px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body><main>
+<h1>Inside a tokamak cryostat</h1>
+<p class="intro">Hover over or focus a diagram label to highlight the part it identifies. The schematic is illustrative and not to scale.</p>
+<section class="visual" aria-label="Interactive cryostat schematic">
+<div class="visual-head"><strong>Cutaway simulation</strong><span>Not to scale · hover labels to highlight components</span></div>
+<div class="svg-wrap"><svg id="cryostat" viewBox="0 0 900 570" role="img" aria-labelledby="title desc">
+<title id="title">Cutaway of a tokamak cryostat</title><desc id="desc">A cryostat vessel with vacuum pumps, a thermal shield, magnetic coils and a plasma core. Hover or focus labels to highlight the corresponding part.</desc>
+<rect x="28" y="24" width="844" height="522" rx="18" fill="#071b2b" stroke="#294c61"/><text class="hardware-label diagram-label" data-target="vessel" x="52" y="55">CRYOSTAT VACUUM VESSEL</text>
+<rect id="vessel" class="outer-shell" x="116" y="83" width="640" height="420" rx="80"/><text class="small-label diagram-label" data-target="vessel" x="135" y="109">Outer vessel / evacuated space</text>
+<path d="M700 190H790V215H700M700 378H790V403H700" fill="none" stroke="#b6ceda" stroke-width="12" stroke-linejoin="round"/>
+<g id="rough-pump" class="pump"><rect class="pump-body" x="785" y="178" width="55" height="48" rx="7"/></g><text class="pump-label diagram-label" data-target="rough-pump" x="812" y="171">Roughing pump</text>
+<g id="high-pump" class="pump"><rect class="pump-body" x="785" y="366" width="55" height="48" rx="7"/></g><text class="pump-label diagram-label" data-target="high-pump" x="812" y="359">Ultra high vacuum pump</text>
+<rect id="shield" class="shield-shell" x="198" y="137" width="476" height="310" rx="68"/><text class="small-label diagram-label" data-target="shield-flow" x="218" y="160">Thermal shield · 80 K (illustrative)</text>
+<path id="shield-flow" class="flow" d="M245 190 C205 220 205 360 245 392 C300 438 570 438 625 392 C665 360 665 220 625 190 C570 145 300 145 245 190Z"/>
+<g id="coils" aria-label="Magnetic coils"><path class="coil" d="M374 164 C482 153 578 195 578 292 C578 389 482 431 374 420 Q366 419 366 411 L366 173 Q366 165 374 164Z"/><path class="coil-hi" d="M380 170 C482 160 570 200 570 292 C570 369 520 414 454 424"/><path class="coil" d="M391 187 C482 178 560 216 560 292 C560 368 482 406 391 397 Q383 396 383 388 L383 196 Q383 188 391 187Z"/><path class="coil-hi" d="M397 193 C482 185 552 221 552 292 C552 352 510 385 456 393"/><path class="coil" d="M407 211 C477 204 542 235 542 292 C542 349 477 380 407 373 Q399 372 399 364 L399 220 Q399 212 407 211Z"/><path class="coil-hi" d="M413 217 C477 211 534 239 534 292 C534 335 496 359 455 367"/></g>
+<path id="plasma-core" class="plasma" d="M416 241 C454 234 482 256 482 292 C482 328 454 350 416 343 Q412 342 412 337 L412 247 Q412 242 416 241Z"/>
+<text class="small-label diagram-label" data-target="plasma-core" x="408" y="296">Plasma core</text><text class="small-label diagram-label" data-target="coils" x="372" y="462">Silver D-shaped magnetic coils</text>
+<text class="small-label diagram-label" data-target="shield-flow" x="226" y="264">Outer helium · 80 K</text><text class="small-label diagram-label" data-target="plasma-core" x="595" y="320">Liquid helium · 4.5 K</text>
+<g id="callout" aria-hidden="true"><path class="hologram-line-glow"/><path class="hologram-line"/><circle class="hologram-node" r="5"/></g>
+</svg></div></section>
+<p class="footer">Schematic only: components, flow, temperatures, and pressure references are illustrative.</p>
+</main>
+<script>
+(()=>{'use strict';const svg=document.getElementById('cryostat'),callout=svg.querySelector('#callout'),glow=callout.querySelector('.hologram-line-glow'),line=callout.querySelector('.hologram-line'),node=callout.querySelector('.hologram-node');let active=null;
+function clear(){if(active){active.classList.remove('highlight');active=null}svg.classList.remove('label-focus-mode');callout.style.display='none'}
+function focus(label){clear();const target=svg.getElementById(label.dataset.target);if(!target)return;active=target;target.classList.add('highlight');svg.classList.add('label-focus-mode');callout.style.display='';const b=label.getBBox(),tx=label.dataset.target==='shield-flow'?245:target.getBBox().x+target.getBBox().width/2,ty=label.dataset.target==='shield-flow'?190:target.getBBox().y+target.getBBox().height/2,sx=b.x+b.width/2,sy=b.y+b.height/2,mx=(sx+tx)/2,d=`M${sx} ${sy} L${mx} ${sy} L${tx} ${ty}`;glow.setAttribute('d',d);line.setAttribute('d',d);node.setAttribute('cx',tx);node.setAttribute('cy',ty)}
+svg.querySelectorAll('.diagram-label').forEach(label=>{label.setAttribute('tabindex','0');label.addEventListener('pointerenter',()=>focus(label));label.addEventListener('pointerleave',clear);label.addEventListener('focus',()=>focus(label));label.addEventListener('blur',clear)});
+})();
+</script></body></html>
