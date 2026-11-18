@@ -563,9 +563,8 @@ Verify Last Modified Time
     const AbstractCount = displayWordCount("Abstract_InText");
     const MagCount = displayWordCount("Magnetic_InText");
     const ConcCount = displayWordCount("Conclusion_InText");
-    const TableCount2 = displayWordCount("CryostatTable");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount + TableCount2;
+    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
