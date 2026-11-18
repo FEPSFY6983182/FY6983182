@@ -544,50 +544,31 @@ Verify Last Modified Time
 <p id="totalWordCount"></p>
 <hr>
 <script>
-  function countParagraphWords(startId, endId) {
-    const start = document.getElementById(startId);
-    const end = document.getElementById(endId);
-
-    if (!start || !end) return 0;
-
-    let count = 0;
-    let element = start;
-    const includedParagraphIds = new Set([
-      "Abstract_InText",
-      "Introduction_InText",
-      "Analysis_InText",
-      "Magnetic_InText",
-      "Conclusion_InText"
-    ]);
-
-    // Count text only from explicitly identified article paragraphs.
-    // Text in diagrams, tables, scripts, and the references section is excluded.
-    includedParagraphIds.forEach((id) => {
-      const paragraph = document.getElementById(id);
-      if (!paragraph) return;
-
-      const text = (paragraph.textContent || "")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (text) count += text.split(" ").length;
-    });
-
-    return count;
+  // Function to calculate and display word count for a specified section
+  function displayWordCount(sectionId, outputId) {
+    // Get the text content from the specified section
+    const text = document.getElementById(sectionId).textContent;
+    // Split text into words based on spaces and filter out any empty strings
+    const wordArray = text.trim().split(/\s+/);
+    // Count the words
+    const wordCount = wordArray.length;
+    // Return the word count for summing purposes
+    return wordCount;
   }
-
+  // Function to calculate and display total word count from selected sections
   function displayTotalWordCount() {
-    const totalWordCount =
-      countParagraphWords("Abstract_InText", "References") +
-      countParagraphWords("Introduction_InText", "References") +
-      countParagraphWords("Analysis_InText", "References") +
-      countParagraphWords("Magnetic_InText", "References") +
-      countParagraphWords("Conclusion_InText", "References");
-
-    document.getElementById("totalWordCount").innerText =
-      `Total word count: ${totalWordCount}`;
+    // Calculate word count for each section and accumulate the total
+    const IntroductionCount = displayWordCount("Introduction_InText");
+    const AnalysisCount = displayWordCount("Analysis_InText");
+    const AbstractCount = displayWordCount("Abstract_InText");
+    const MagCount = displayWordCount("Magnetic_InText");
+    const ConcCount = displayWordCount("Conclusion_InText");
+    const TableCount2 = displayWordCount("CryostatTable");
+    // Calculate the sum of all selected sections
+    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount + TableCount2;
+    // Display the total word count
+    document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
-
-  document.addEventListener("DOMContentLoaded", displayTotalWordCount);
+  // Run the function for specific sections and display total count when the page loads
+  window.onload = displayTotalWordCount;
 </script>
