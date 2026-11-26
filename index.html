@@ -103,6 +103,9 @@ h3[id] {
         <tr>
           <td><a href="#Analysis and discussion">Analysis and discussion</td>
         </tr>
+         <tr>
+          <td><a href="#Analysis and discussion">Analysis and discussion</td>
+        </tr>
         <tr>
           <td><a href="#References">References</td>
         </tr>
@@ -111,7 +114,7 @@ h3[id] {
     <h3 id="Abstract">Abstract</h3>
     <p class="ex1" id="Abstract_InText">
     This article is a summary aimed at people with a university level of physics knowledge. The article itself explains the function of several of the components of a tokamak nuclear fusion reactor 
-      which are essential for the process to take place. This includes the blanket region, cryostat systems, 
+      which are essential for fusion occur. This includes the blanket region, cryostat systems, 
       magnetic plasma control technologies and the neutral beam injection systems. It also covers some of the problems associated with these components, 
       and how researchers have designed the specialised systems to overcome these issues covered in a concise and relatively straightforward manner.
   </p>
@@ -467,6 +470,7 @@ setStage(1);showTemperature(roomK);requestAnimationFrame(animate);
       <br> 
      Walker, M.L., De Vries, P., Felici, F. and Schuster, E. (2020) 'Introduction to Tokamak Plasma Control', (2020 American Control Conference)(ACC). Denver, CO, 1–3 July. Piscataway, NJ: IEEE, pp. 1985–2083. 
       </head>
+  <hr>
       
     </p>
         
@@ -555,11 +559,10 @@ Verify Last Modified Time
     // Calculate word count for each section and accumulate the total
     const IntroductionCount = displayWordCount("Introduction_InText");
     const AnalysisCount = displayWordCount("Analysis_InText");
-    const AbstractCount = displayWordCount("Abstract_InText");
     const MagCount = displayWordCount("Magnetic_InText");
     const ConcCount = displayWordCount("Conclusion_InText");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount + AbstractCount + MagCount + ConcCount;
+    const totalWordCount = IntroductionCount + AnalysisCount + MagCount + ConcCount;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
