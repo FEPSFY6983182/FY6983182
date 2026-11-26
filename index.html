@@ -163,7 +163,7 @@ figure.ex1 img {
   Image credit: (刘 C. 常. L., et.al, (2024)).  https://doi.org/10.1088/2058-6272/ad5a66</figcaption>
   </figcaption>
 </figure>
-<p class="ex1" id="Blanket_InText">
+<p class="ex1" id="Blanket_InText2">
        <b>First wall</b>
       <br>
 -	The exposed part of the inside of the core.
@@ -593,10 +593,11 @@ Verify Last Modified Time
     const CryostatCount = displayWordCount("Cryostat_InText");
     const IntroductionCount = displayWordCount("Introduction_InText");
     const AnalysisCount = displayWordCount("Blanket_InText");
+    const AnalysisCount2 = displayWordCount("Blanket_InText2");
     const MagCount = displayWordCount("Magnetic_InText");
     const ConcCount = displayWordCount("Conclusion_InText");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount + MagCount + ConcCount + NeutralCount + CryostatCount;
+    const totalWordCount = IntroductionCount + AnalysisCount + AnalysisCount2 + MagCount + ConcCount + NeutralCount + CryostatCount;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
