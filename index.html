@@ -160,7 +160,7 @@ figure.ex1 img {
   <img src="BlanketRegion.jpg" alt="Cross-section of the tokamak blanket region">
   <figcaption>
     Fig. 1 – Diagram of the cross-section of the blanket region of a tokamak.
-  Image credit: 刘 C. 常. L., 李 L. 磊. L., 何 Y. 严. H., 张 P. 鹏. Z., 周 Y. 宇. Z., 宋 J. 军. S., & 武 S. 松. W. (2024). An innovative approach to effective breeding blanket design for future fusion reactors. Plasma Science and Technology, 26(10), 105601. https://doi.org/10.1088/2058-6272/ad5a66</figcaption>
+  Image credit: (刘 C. 常. L., et.al, (2024)).  https://doi.org/10.1088/2058-6272/ad5a66</figcaption>
   </figcaption>
 </figure>
 <p class="ex1" id="Blanket_InText">
@@ -324,6 +324,7 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last
       <br>
       <br>
       <h3 id="Neutral Beam Injection">Neutral Beam Injection</h3>
+      <p class="ex1" id="Neutral_InText"</p>
         <u><b>Neutral beam Injection </b></u>
       <br>
         One of the main challenges faced in tokamak fusion is the fact that normally fusion can take place at temperatures of around 
@@ -467,6 +468,10 @@ setStage(1);showTemperature(roomK);requestAnimationFrame(animate);
       <a href="https://www.osti.gov/servlets/purl/1963025">link</a> 
       <hr>
       <br>
+      刘 C. 常. L., 李 L. 磊. L., 何 Y. 严. H., 张 P. 鹏. Z., 周 Y. 宇. Z., 宋 J. 军. S., & 武 S. 松. W. (2024). An innovative approach to effective breeding blanket design for future fusion reactors. Plasma Science and Technology, 26(10), 105601
+      <a href="https://doi.org/10.1088/2058-6272/ad5a66">link</a>
+      <hr>
+      <br>
        Nunn, T., Gopakumar, V. and Kahn, S. (2023) Shaping of Magnetic Field Coils in Fusion Reactors using Bayesian Optimisation.
         arXiv preprint arXiv:2310.01455.(Accessed: 30 October 2026).
       <a href="https://arxiv.org/abs/2310.01455">link</a> 
@@ -583,12 +588,14 @@ Verify Last Modified Time
   // Function to calculate and display total word count from selected sections
   function displayTotalWordCount() {
     // Calculate word count for each section and accumulate the total
+    const NeutralCount = displayWordCount("Neutral_InText");
+    const CryostatCount = displayWordCount("Cryostat_InText");
     const IntroductionCount = displayWordCount("Introduction_InText");
     const AnalysisCount = displayWordCount("Blanket_InText");
     const MagCount = displayWordCount("Magnetic_InText");
     const ConcCount = displayWordCount("Conclusion_InText");
     // Calculate the sum of all selected sections
-    const totalWordCount = IntroductionCount + AnalysisCount + MagCount + ConcCount;
+    const totalWordCount = IntroductionCount + AnalysisCount + MagCount + ConcCount + NeutralCount + CryostatCount;
     // Display the total word count
     document.getElementById("totalWordCount").innerText = `Total word count: ${totalWordCount}`;
   }
