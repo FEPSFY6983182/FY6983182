@@ -248,6 +248,52 @@ h3[id] {
     <a href="https://doi.org/10.1088/2058-6272/ad5a66">Source</a>
   </figcaption>
 </figure>
+  <script>
+(() => {
+  const figure = document.querySelector(".tokamak-figure");
+  const image = figure?.querySelector(".figure-image-wrap img");
+  if (!figure || !image) return;
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(([entry]) => {
+      figure.classList.toggle("is-visible", entry.isIntersecting);
+    }, { threshold: 0.12 });
+
+    observer.observe(figure);
+  } else {
+    figure.classList.add("is-visible");
+  }
+
+  if (reduceMotion) return;
+
+  let frameRequested = false;
+
+  function updateParallax() {
+    const rect = figure.getBoundingClientRect();
+    const distanceFromCenter =
+      rect.top + rect.height / 2 - window.innerHeight / 2;
+    const offset = Math.max(-24, Math.min(24, distanceFromCenter * -0.045));
+
+    image.style.setProperty("--parallax-y", `${offset}px`);
+    frameRequested = false;
+  }
+
+  function requestParallaxUpdate() {
+    if (!frameRequested) {
+      frameRequested = true;
+      requestAnimationFrame(updateParallax);
+    }
+  }
+
+  window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
+  window.addEventListener("resize", requestParallaxUpdate);
+  requestParallaxUpdate();
+})();
+</script>
 <p class="ex1" id="Blanket_InText2">
        <b>First wall</b>
       <br>
@@ -696,49 +742,4 @@ Verify Last Modified Time
   // Run the function for specific sections and display total count when the page loads
   window.onload = displayTotalWordCount;
 </script>
-<script>
-(() => {
-  const figure = document.querySelector(".tokamak-figure");
-  const image = figure?.querySelector(".figure-image-wrap img");
-  if (!figure || !image) return;
 
-  const reduceMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(([entry]) => {
-      figure.classList.toggle("is-visible", entry.isIntersecting);
-    }, { threshold: 0.12 });
-
-    observer.observe(figure);
-  } else {
-    figure.classList.add("is-visible");
-  }
-
-  if (reduceMotion) return;
-
-  let frameRequested = false;
-
-  function updateParallax() {
-    const rect = figure.getBoundingClientRect();
-    const distanceFromCenter =
-      rect.top + rect.height / 2 - window.innerHeight / 2;
-    const offset = Math.max(-24, Math.min(24, distanceFromCenter * -0.045));
-
-    image.style.setProperty("--parallax-y", `${offset}px`);
-    frameRequested = false;
-  }
-
-  function requestParallaxUpdate() {
-    if (!frameRequested) {
-      frameRequested = true;
-      requestAnimationFrame(updateParallax);
-    }
-  }
-
-  window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
-  window.addEventListener("resize", requestParallaxUpdate);
-  requestParallaxUpdate();
-})();
-</script>
