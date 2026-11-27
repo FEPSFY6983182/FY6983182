@@ -125,6 +125,8 @@ h3[id] {
 }
 
 .figure-image-wrap {
+  height: 100%;
+  aspect-ratio: 700 / 450;
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -135,8 +137,9 @@ h3[id] {
   display: block;
   width: 100%;
   height: auto;
+   object-fit: cover;
   opacity: 0;
-  transform: translate3d(0, var(--parallax-y, 0px), 0) scale(1.08);
+  transform: translate3d(0, var(--parallax-y, 0px), 0) scale(1.18);
   transition: opacity 700ms ease;
   will-change: transform, opacity;
 }
@@ -276,7 +279,7 @@ h3[id] {
     const rect = figure.getBoundingClientRect();
     const distanceFromCenter =
       rect.top + rect.height / 2 - window.innerHeight / 2;
-    const offset = Math.max(-24, Math.min(24, distanceFromCenter * -0.045));
+    const offset = Math.max(-24, Math.min(45, distanceFromCenter * -0.12));
 
     image.style.setProperty("--parallax-y", `${offset}px`);
     frameRequested = false;
