@@ -118,16 +118,68 @@ h3[id] {
     color: white;
   }
 
-figure.ex1 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.tokamak-figure {
+  width: min(100%, 700px);
+  margin: 1rem auto;
+  text-align: center;
 }
 
-figure.ex1 img {
+.figure-image-wrap {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 2px;
+}
+
+.figure-image-wrap img {
   display: block;
   width: 100%;
-  max-width: 700px;
   height: auto;
+  opacity: 0;
+  transform: translate3d(0, var(--parallax-y, 0px), 0) scale(1.08);
+  transition: opacity 700ms ease;
+  will-change: transform, opacity;
+}
+
+/* Fade all four edges into the page background */
+.figure-image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      #0b2b47 0%,
+      transparent 10%,
+      transparent 90%,
+      #0b2b47 100%
+    ),
+    linear-gradient(
+      to bottom,
+      #0b2b47 0%,
+      transparent 12%,
+      transparent 88%,
+      #0b2b47 100%
+    );
+}
+
+.tokamak-figure.is-visible .figure-image-wrap img {
+  opacity: 1;
+}
+
+.tokamak-figure figcaption {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure-image-wrap img {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
 }
 </style>
 <body>
@@ -186,11 +238,14 @@ figure.ex1 img {
       “Each of these components is assumed to be a toroidally homogeneous, monolithic structure” <a id="cite-J.P" href="ref-J.P">(J. P. Freidberg, F. J. Mangiarotti, J. Minervini, July 2015)</a>
        so it is a uniform shape throughout. The purpose of the blanket region is to carry out multiple processes:
     </p>
-     <figure class="tokamak-figure">
-  <img src="BlanketRegion.jpg" alt="Cross-section of the tokamak blanket region">
+    <figure class="tokamak-figure">
+  <div class="figure-image-wrap">
+    <img src="BlanketRegion.jpg" alt="Cross-section of the tokamak blanket region">
+  </div>
   <figcaption>
     Fig. 1 – Diagram of the cross-section of the blanket region of a tokamak.
-  Image credit: (刘 C. 常. L., et.al, (2024)).  https://doi.org/10.1088/2058-6272/ad5a66</figcaption>
+    Image credit: 刘 C. 常. L., et al. (2024).
+    <a href="https://doi.org/10.1088/2058-6272/ad5a66">Source</a>
   </figcaption>
 </figure>
 <p class="ex1" id="Blanket_InText2">
@@ -640,4 +695,50 @@ Verify Last Modified Time
   }
   // Run the function for specific sections and display total count when the page loads
   window.onload = displayTotalWordCount;
+</script>
+<script>
+(() => {
+  const figure = document.querySelector(".tokamak-figure");
+  const image = figure?.querySelector(".figure-image-wrap img");
+  if (!figure || !image) return;
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(([entry]) => {
+      figure.classList.toggle("is-visible", entry.isIntersecting);
+    }, { threshold: 0.12 });
+
+    observer.observe(figure);
+  } else {
+    figure.classList.add("is-visible");
+  }
+
+  if (reduceMotion) return;
+
+  let frameRequested = false;
+
+  function updateParallax() {
+    const rect = figure.getBoundingClientRect();
+    const distanceFromCenter =
+      rect.top + rect.height / 2 - window.innerHeight / 2;
+    const offset = Math.max(-24, Math.min(24, distanceFromCenter * -0.045));
+
+    image.style.setProperty("--parallax-y", `${offset}px`);
+    frameRequested = false;
+  }
+
+  function requestParallaxUpdate() {
+    if (!frameRequested) {
+      frameRequested = true;
+      requestAnimationFrame(updateParallax);
+    }
+  }
+
+  window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
+  window.addEventListener("resize", requestParallaxUpdate);
+  requestParallaxUpdate();
+})();
 </script>
